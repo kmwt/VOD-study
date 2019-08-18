@@ -1,7 +1,7 @@
 
 /*PHP：Getterで読み込む*/
 const videos_ = [
-    { name: "1-1", url: "sample.mp4" }
+    { name: "1-1", url: "video-src/sample.mp4" }
 ];
 var video_index_ = 0;
 
