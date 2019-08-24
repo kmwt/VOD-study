@@ -1,33 +1,40 @@
-/*シークバーのデザイン*/
-/*ref: https://qiita.com/nezurika/items/ea3ae9a3e9ec3c158528*/
+body {
+    width: 800px;
+    margin-right: auto;
+    margin-left: auto
+}
+
 .input-range[type="range"] {
-	-webkit-appearance: none;
-	appearance: none;
-	background-color: #c7c7c7;
-	height: 2px;
-	vertical-align: middle;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #c7c7c7;
+    height: 2px;
+    vertical-align: middle;
 }
-.input-range[type="range"]:focus{
-	outline: none;
+
+.input-range[type="range"]:focus {
+    outline: none;
 }
-.input-range[type="range"]:active{
-	outline: none;
+
+.input-range[type="range"]:active {
+    outline: none;
 }
+
 .input-range[type="range"]::-webkit-slider-thumb {
-	-webkit-appearance: none;
-	appearance: none;
-	cursor: pointer;
-	position: relative;
-	border: none;
-	width: 12px;
-	height: 12px;
-	display: block;
-	background-color: #262626;
-	border-radius: 50%;
-	-webkit-border-radius: 50%;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    position: relative;
+    border: none;
+    width: 12px;
+    height: 12px;
+    display: block;
+    background-color: #262626;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
 }
+
 .input-range[type="range"]:active::-webkit-slider-thumb {
-	box-shadow: 0 0 0 4px rgba(255, 255, 255, .6);
-	transition: .4s;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, .6);
+    transition: .4s;
 }
-/*シークバーのデザイン*/
