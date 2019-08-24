@@ -1,10 +1,9 @@
 'use strict';
-
-/*PHP：Getterで読み込む*/
 const _videoObjectList = [
     { name: "1-1", url: "video-src/sample.mp4" }
 ];
 var _nowVideoIndex = 0;
+
 
 /**
  * 初期化
@@ -22,15 +21,13 @@ function SetVideo(videoObjectList, videoElmId) {
 
     const videoLocation = videoObjectList[0].url;
 
-    let main = document.body;
-    if (videoElmId)
-        main = document.getElementById(videoElmId);
+    const main = videoElmId ? document.getElementById(videoElmId) : document.body;
 
     const table = document.createElement("table");
     const tbody = document.createElement("tbody");
 
     /**************************Mid*************************/
-    //ビデオ
+    //ビデオ表示の設定
     const video_tr = document.createElement("tr");
     const video_td = document.createElement("td");
     const video = document.createElement("video");
@@ -134,10 +131,10 @@ function SetVideo(videoObjectList, videoElmId) {
     speed.id = "video-speed";
     speed.type = "range";
     speed.classList.add("input-range");
+    speed.min = 0.5;
+    speed.max = 1.5;
+    speed.step = 0.5;
     speed.value = 1;
-    speed.min = 1;
-    speed.max = 2;
-    speed.step = 0.1;
     speed.title = "再生速度を変更する 您可以更改播放速度 You can change the playback speed";
 
     speed.addEventListener("change", function() {
