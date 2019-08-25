@@ -1,7 +1,12 @@
 'use strict';
+
+// videoの表示名とURLのリスト
 const _videoObjectList = [
     { name: "1-1", url: "video-src/sample.mp4" }
 ];
+// TODO サーバ側で設定
+
+// 現在表示されているビデオのインデックス
 var _nowVideoIndex = 0;
 
 
@@ -28,8 +33,7 @@ function SetVideo(videoObjectList, videoElmId) {
     const tbody = document.createElement("tbody");
     tbody.id = "video-tbody";
 
-    /**************************Mid*************************/
-    //ビデオ表示の設定
+    /**************************ビデオ表示の設定*************************/
     const video_tr = document.createElement("tr");
     const video_td = document.createElement("td");
     const video = document.createElement("video");
@@ -46,11 +50,10 @@ function SetVideo(videoObjectList, videoElmId) {
     video_td.appendChild(video);
     video_tr.appendChild(video_td);
     tbody.appendChild(video_tr);
+    /**************************ビデオ表示の設定*************************/
 
 
-
-    /**************************Mid*************************/
-    //シークバー
+    /**************************シークバーの設定*************************/
     const seekbar_tr = document.createElement("tr");
     const seekbar_td = document.createElement("td");
     const seekbar = document.createElement("input");
@@ -72,23 +75,28 @@ function SetVideo(videoObjectList, videoElmId) {
     };
 
     video.ontimeupdate = () => {
-        seekbar.value = video.currentTime;
-        const timeCode = Timecode2HMS(Math.floor(video.currentTime)).slice(3);
-        document.getElementById("video-timecode").innerHTML = timeCode;
+        const time = video.currentTime;
+        seekbar.value = time;
+        const timeCode = Timecode2HMS(Math.floor(time)).slice(3);
+        const time_code = document.getElementById("video-timecode");
+        time_code.innerHTML = timeCode;
+        time_code.value = time;
         document.title = _videoObjectList[_nowVideoIndex].name + "[" + timeCode + "]";
     };
 
     seekbar_td.appendChild(seekbar);
     seekbar_tr.appendChild(seekbar_td);
     tbody.appendChild(seekbar_tr);
+    /**************************シークバーの設定*************************/
 
 
-    /**************************Left*************************/
+    /**************************再生制御の設定*************************/
+
+    /**************************再生停止*/
     const attribute_tr = document.createElement("tr");
     const attribute_left_td = document.createElement("td");
     attribute_left_td.style.textAlign = "left";
 
-    //再生
     const button_play = document.createElement("button");
     const icon_play = document.createElement("i");
     const span_time = document.createElement("button");
@@ -122,9 +130,9 @@ function SetVideo(videoObjectList, videoElmId) {
     };
 
     attribute_left_td.appendChild(button_play);
+    /**************************再生停止*/
 
-
-    //再生速度変更
+    /**************************再生速度の変更*/
     const span_speed = document.createElement("span");
     const speed = document.createElement("input");
 
@@ -156,14 +164,13 @@ function SetVideo(videoObjectList, videoElmId) {
     span_speed.append(speed_up_icon);
 
     attribute_left_td.appendChild(span_speed);
+    /**************************再生速度の変更*/
 
-
-    /**************************Center*************************/
+    /**************************前の映像に戻る*/
     const attribute_center_td = document.createElement("td");
     attribute_center_td.style.textAlign = "center";
     attribute_center_td.style.padding = "10px";
 
-    //前の映像に戻る
     const backButton = document.createElement("button");
     const backButtonIcon = document.createElement("i");
 
@@ -186,9 +193,9 @@ function SetVideo(videoObjectList, videoElmId) {
     };
 
     attribute_center_td.appendChild(backButton);
+    /**************************前の映像に戻る*/
 
-
-    //映像の時間を表示
+    /**************************映像の時間を表示*/
     const span_timecode = document.createElement("span");
 
     span_timecode.id = "video-timecode";
@@ -213,9 +220,9 @@ function SetVideo(videoObjectList, videoElmId) {
     };
 
     attribute_center_td.appendChild(span_endtime);
+    /**************************映像の時間を表示*/
 
-
-    //次の映像に進む
+    /**************************次の映像に進む*/
     const nextButton = document.createElement("button");
     const nextButtonIcon = document.createElement("i");
 
@@ -238,15 +245,13 @@ function SetVideo(videoObjectList, videoElmId) {
     nextButton.title = "次の映像へ進む  转到播放列表中的下一个视频 You can go to the next video";
 
     attribute_center_td.appendChild(nextButton);
+    /**************************次の映像に進む*/
 
-
-    /**************************Right*************************/
+    /**************************音量の調整*/
     const attribute_right_td = document.createElement("td");
     attribute_right_td.style.textAlign = "right";
     attribute_right_td.style.padding = "10px";
 
-
-    //音量調整
     const span_sound = document.createElement("span");
     const sound = document.createElement("input");
 
@@ -278,14 +283,15 @@ function SetVideo(videoObjectList, videoElmId) {
     span_sound.appendChild(sound);
     span_sound.appendChild(volume_up_icon);
     attribute_right_td.appendChild(span_sound);
+    /**************************音量の調整*/
+
+    /**************************再生制御の設定*************************/
 
 
     attribute_tr.appendChild(attribute_left_td);
     attribute_tr.appendChild(attribute_center_td);
     attribute_tr.appendChild(attribute_right_td);
     tbody.appendChild(attribute_tr);
-
-
 
     table.appendChild(tbody);
     main.appendChild(table);
@@ -369,7 +375,6 @@ function TakeNote(event) {
 
     const note_tr = document.createElement("tr");
     note_tr.id = nowTime + "-tr";
-    removeAllChildren(note_tr);
 
     const image_td = document.createElement("td");
     image_td.colSpan = 1;
@@ -420,6 +425,20 @@ function TakeNote(event) {
     const text_card_hooter = document.createElement("div");
     text_card_hooter.classList.add("text-right");
 
+    // タイムコードを表示
+    const video_timecode = document.getElementById("video-timecode")
+    const note_timeline = document.createElement("span");
+    note_timeline.id = "note-timecode";
+    note_timeline.innerHTML = video_timecode.innerHTML;
+    note_timeline.value = video_timecode.value;
+    // クリックで画像の時点に戻る
+    note_timeline.onpointerdown = (event) => {
+        const video = document.getElementById("video");
+        video.currentTime = event.path[0].value;
+    };
+    note_timeline.style.margin = "5px";
+    text_card_hooter.appendChild(note_timeline);
+
     const save_button = document.createElement("button");
     save_button.id = nowTime + "-save_button";
     save_button.style.margin = "5px";
@@ -435,9 +454,11 @@ function TakeNote(event) {
     save_button.onpointerdown = (event) => {
         console.log(event);
         const id = event.path[0].id.split("-")[0] + "-text";
-        const text = document.getElementById(id).value;
+        const text = document.getElementById(id).value + "" + document.location.href + "&";
         const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
         window.open(url, "_blank", "width=600,height=300");
+        // TODO 画像を投稿できるようにする
+        // TODO タイムラインをGETとして保存した再生時間で再生できるようにする
     };
     text_card_hooter.appendChild(save_button);
 
@@ -463,15 +484,6 @@ function TakeNote(event) {
     text_td.appendChild(text_card_hooter);
     note_tr.appendChild(text_td);
 
-
-    /*データ送信用*/
-    // let src = ctx.toDataURL("image/jpeg");
-    // let img = document.createElement("img");
-    // img.id = "video-tmp";
-    // img.src = src;
-
-    // TODO: 一次画像保存用のtrを保存
-
     this.removeAttribute("x");
     this.removeAttribute("y");
 
@@ -486,12 +498,11 @@ function removeElement(element) {
     element.parentNode.removeChild(element);
 }
 
-/**
- * 指定した要素の子どもを全て削除
- * @param {HTMLElement} element HTMLの要素
+
+
+/** メモ
+ * アッパー：関数
+ * キャメル：JavaScriptの変数
+ * スネーク：HTML要素
+ * 先頭アンダー：グローバル
  */
-function removeAllChildren(element) {
-    while (element.firstChild) { // 子どもの要素があるかぎり削除
-        element.removeChild(element.firstChild);
-    }
-}
