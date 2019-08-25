@@ -2,7 +2,7 @@
 
 // videoの表示名とURLのリスト
 const _videoObjectList = [
-    { name: "猫の動画", url: "https://cdn.fccc.info/RbBs/soroban/ea4ff06d619e288bd133c152efcc438c/soroban-movie-18812/movie-private.mp4?Expires=1566764190&Key-Pair-Id=APKAIXOVMBEKCVHZBGWQ&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4uZmNjYy5pbmZvLyovc29yb2Jhbi8qL3Nvcm9iYW4tbW92aWUtMTg4MTIvKi4qIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNTY2NzY0MTkwfX19XX0_&Signature=ICJutYO2px~BZ5k2gDQDK3Wmx3cg4MgiGiwV83HeYs4PA5m5hw85eHUN8Hw-ui69iZb1cnOnT8SPXrUB6rMbq7R58gZ1RztL1fh5BuJoIxmIcWh9b0498Hw9pylEmBykbUNuoaq1hih5U2dQts7FEHu4X5pP1xPo6wDiiqq~y1j982lbvOPu3QjiZ8bolRzN-ESBFT637O~gPaClrFrXp-u1wa2qlUib3HWskBfkS8OhNZcaR1heRhNvSsBo6jaDAJzDnL4MsoeJQPmjPjg3Gc0lJRRWni9y6-mbtwA1KEFyTn8pgYlzZ2a65LziWPEkhRy5ATdaCZZKsqejm4VeYQ__" }
+    { name: "猫の動画", url: "video-src/sample.mp4" }
 ];
 // TODO サーバ側で設定
 // TODO 起動時にユーザに指定させる
@@ -413,6 +413,8 @@ function TakeNote(event) {
         cvs.width,
         cvs.height
     );
+    if (cvs.width > document.getElementById("video-tbody").clientWidth / 3)
+        cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3) + "px";
 
     image_td.appendChild(cvs);
     note_tr.appendChild(image_td);
