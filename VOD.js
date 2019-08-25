@@ -270,9 +270,9 @@ function SetVideo(videoObjectList, videoElmId) {
     sound.style.margin = "0px 10px";
     video.volume = 0.01;
 
-    sound.addEventListener("input", function() {
+    sound.input = () => {
         video.volume = sound.value;
-    }, false);
+    };
 
     const volume_down_icon = document.createElement("i");
     volume_down_icon.classList.add("fa");
