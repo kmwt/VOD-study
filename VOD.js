@@ -2,9 +2,11 @@
 
 // videoの表示名とURLのリスト
 const _videoObjectList = [
-    { name: "1-1", url: "video-src/sample.mp4" }
+    { name: "猫の動画", url: "https://cdn.fccc.info/RbBs/soroban/ea4ff06d619e288bd133c152efcc438c/soroban-movie-18812/movie-private.mp4?Expires=1566764190&Key-Pair-Id=APKAIXOVMBEKCVHZBGWQ&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4uZmNjYy5pbmZvLyovc29yb2Jhbi8qL3Nvcm9iYW4tbW92aWUtMTg4MTIvKi4qIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNTY2NzY0MTkwfX19XX0_&Signature=ICJutYO2px~BZ5k2gDQDK3Wmx3cg4MgiGiwV83HeYs4PA5m5hw85eHUN8Hw-ui69iZb1cnOnT8SPXrUB6rMbq7R58gZ1RztL1fh5BuJoIxmIcWh9b0498Hw9pylEmBykbUNuoaq1hih5U2dQts7FEHu4X5pP1xPo6wDiiqq~y1j982lbvOPu3QjiZ8bolRzN-ESBFT637O~gPaClrFrXp-u1wa2qlUib3HWskBfkS8OhNZcaR1heRhNvSsBo6jaDAJzDnL4MsoeJQPmjPjg3Gc0lJRRWni9y6-mbtwA1KEFyTn8pgYlzZ2a65LziWPEkhRy5ATdaCZZKsqejm4VeYQ__" }
 ];
 // TODO サーバ側で設定
+// TODO 起動時にユーザに指定させる
+// TODO ドラッグアンドドロップでビデオ指定
 
 // 現在表示されているビデオのインデックス
 var _nowVideoIndex = 0;
@@ -171,28 +173,29 @@ function SetVideo(videoObjectList, videoElmId) {
     attribute_center_td.style.textAlign = "center";
     attribute_center_td.style.padding = "10px";
 
-    const backButton = document.createElement("button");
-    const backButtonIcon = document.createElement("i");
+    const back_button = document.createElement("button");
+    const back_buttonIcon = document.createElement("i");
 
-    backButton.id = "video-next";
-    backButton.classList.add("btn");
-    backButton.classList.add("btn-dark");
-    backButton.style.margin = "0px 10px";
-    backButton.title = "前の映像に戻る 您可以在此视频之前看到播放的视频 You can see the video played before this video";
+    back_button.id = "video-next";
+    back_button.classList.add("btn");
+    back_button.classList.add("btn-dark");
+    back_button.style.margin = "0px 10px";
+    back_button.title = "前の映像に戻る 您可以在此视频之前看到播放的视频 You can see the video played before this video";
 
-    backButtonIcon.id = "video-play-icon";
-    backButtonIcon.classList.add("fas");
-    backButtonIcon.classList.add("fa-step-backward");
+    back_buttonIcon.id = "video-play-icon";
+    back_buttonIcon.classList.add("fas");
+    back_buttonIcon.classList.add("fa-step-backward");
 
-    backButton.appendChild(backButtonIcon);
-    backButton.onpointerdown = () => {
+    back_button.appendChild(back_buttonIcon);
+    back_button.onpointerdown = () => {
         if (_nowVideoIndex > 0) {
             _nowVideoIndex--;
             ChangeVideo(_videoObjectList[_nowVideoIndex].url);
         }
     };
 
-    attribute_center_td.appendChild(backButton);
+    attribute_center_td.appendChild(back_button);
+    // TODO １０秒戻るなどにしたほうがよかった
     /**************************前の映像に戻る*/
 
     /**************************映像の時間を表示*/
@@ -223,28 +226,28 @@ function SetVideo(videoObjectList, videoElmId) {
     /**************************映像の時間を表示*/
 
     /**************************次の映像に進む*/
-    const nextButton = document.createElement("button");
-    const nextButtonIcon = document.createElement("i");
+    const next_button = document.createElement("button");
+    const next_buttonIcon = document.createElement("i");
 
-    nextButton.id = "video-next";
-    nextButton.classList.add("btn");
-    nextButton.classList.add("btn-dark");
-    nextButton.style.margin = "0px 10px";
+    next_button.id = "video-next";
+    next_button.classList.add("btn");
+    next_button.classList.add("btn-dark");
+    next_button.style.margin = "0px 10px";
 
-    nextButtonIcon.id = "video-play-icon";
-    nextButtonIcon.classList.add("fas");
-    nextButtonIcon.classList.add("fa-step-forward");
+    next_buttonIcon.id = "video-play-icon";
+    next_buttonIcon.classList.add("fas");
+    next_buttonIcon.classList.add("fa-step-forward");
 
-    nextButton.appendChild(nextButtonIcon);
-    nextButton.onpointerdown = () => {
+    next_button.appendChild(next_buttonIcon);
+    next_button.onpointerdown = () => {
         if (_nowVideoIndex < _videoObjectList.length - 1) {
             _nowVideoIndex++;
             ChangeVideo(_videoObjectList[_nowVideoIndex].url);
         }
     };
-    nextButton.title = "次の映像へ進む  转到播放列表中的下一个视频 You can go to the next video";
+    next_button.title = "次の映像へ進む  转到播放列表中的下一个视频 You can go to the next video";
 
-    attribute_center_td.appendChild(nextButton);
+    attribute_center_td.appendChild(next_button);
     /**************************次の映像に進む*/
 
     /**************************音量の調整*/
@@ -353,12 +356,15 @@ function SetNote() {
     console.log("NoteSetting");
 
     const video = document.getElementById("video");
+    video.style.cursor = "pointer";
     video.onpointerdown = (event) => {
         const video = document.getElementById("video");
         const x = Math.round(event.offsetX * video.videoWidth / video.clientWidth);
         const y = Math.round(event.offsetY * video.videoHeight / video.clientHeight);
+        video.style.cursor = "se-resize";
         video.setAttribute("x", x);
         video.setAttribute("y", y);
+        // TODO 矩形を描画する
     };
     video.addEventListener('pointerup', TakeNote);
 }
@@ -367,15 +373,21 @@ function SetNote() {
 /**
  * ノートを書く
  * @param {event} event
+ * TODO 秘密掲示板
  */
 function TakeNote(event) {
 
+    document.getElementById("video").style.cursor = "pointer";
+
     console.log("NoteTaking");
-    const nowTime = new Date().getTime()
+    var today = new Date();
+    const nowTime = today.getTime()
 
     const note_tr = document.createElement("tr");
     note_tr.id = nowTime + "-tr";
 
+
+    /**************************映像から画像を抽出*************************/
     const image_td = document.createElement("td");
     image_td.colSpan = 1;
     image_td.id = nowTime + "-image";
@@ -404,15 +416,23 @@ function TakeNote(event) {
 
     image_td.appendChild(cvs);
     note_tr.appendChild(image_td);
+    /**************************映像から画像を抽出*************************/
 
 
+    /**************************テキスト投稿欄の表示*************************/
     const text_td = document.createElement("td");
     text_td.colSpan = 2;
 
     const text_card = document.createElement("div");
 
-    const text_card_body = document.createElement("div");
+    /**************************メモヘッダ*/
+    const text_card_header = document.createElement("div");
+    text_card_header.innerHTML = today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + " " + today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds();
+    text_td.appendChild(text_card_header);
+    /**************************メモヘッダ*/
 
+    /**************************コメント欄表示*/
+    const text_card_body = document.createElement("div");
     const text_area = document.createElement("input");
     text_area.id = nowTime + "-text";
     text_area.type = "text";
@@ -420,25 +440,28 @@ function TakeNote(event) {
     text_area.classList.add("form-control");
     text_card_body.appendChild(text_area);
     text_td.appendChild(text_card_body);
-
+    /**************************コメント欄表示*/
 
     const text_card_hooter = document.createElement("div");
     text_card_hooter.classList.add("text-right");
 
-    // タイムコードを表示
+    /**************************タイムコードを表示*/
     const video_timecode = document.getElementById("video-timecode")
-    const note_timeline = document.createElement("span");
-    note_timeline.id = "note-timecode";
-    note_timeline.innerHTML = video_timecode.innerHTML;
-    note_timeline.value = video_timecode.value;
-    // クリックで画像の時点に戻る
-    note_timeline.onpointerdown = (event) => {
+    const note_timecode = document.createElement("span");
+    note_timecode.classList.add("note-timecode");
+    note_timecode.id = "note-timecode";
+    note_timecode.innerHTML = video_timecode.innerHTML;
+    note_timecode.value = video_timecode.value;
+    // クリックでメモをとった時点に戻る
+    note_timecode.onpointerdown = (event) => {
         const video = document.getElementById("video");
         video.currentTime = event.path[0].value;
     };
-    note_timeline.style.margin = "5px";
-    text_card_hooter.appendChild(note_timeline);
+    note_timecode.style.margin = "5px";
+    text_card_hooter.appendChild(note_timecode);
+    /**************************タイムコードを表示*/
 
+    /**************************メモの保存（本来はサーバ 現在はTweet）*/
     const save_button = document.createElement("button");
     save_button.id = nowTime + "-save_button";
     save_button.style.margin = "5px";
@@ -453,15 +476,20 @@ function TakeNote(event) {
     save_button.appendChild(save_icom);
     save_button.onpointerdown = (event) => {
         console.log(event);
+        const video = document.getElementById("video-timecode");
         const id = event.path[0].id.split("-")[0] + "-text";
-        const text = document.getElementById(id).value + "" + document.location.href + "&";
+        const text = document.getElementById(id).value + " ＠ " + video.innerHTML + " in " + _videoObjectList[_nowVideoIndex].name;
         const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
         window.open(url, "_blank", "width=600,height=300");
         // TODO 画像を投稿できるようにする
         // TODO タイムラインをGETとして保存した再生時間で再生できるようにする
+        // GetterでURLからパラメタを読み込ませたほうがよかったような気がした
     };
     text_card_hooter.appendChild(save_button);
+    /**************************メモの保存（本来はサーバ 現在はTweet）*/
 
+
+    /**************************メモの削除*/
     const delete_button = document.createElement("button");
     delete_button.style.margin = "5px";
     delete_button.classList.add("btn");
@@ -480,6 +508,12 @@ function TakeNote(event) {
     };
 
     text_card_hooter.appendChild(delete_button);
+    /**************************メモの削除*/
+
+    // メモの更新
+    // TODO 
+
+    /**************************テキスト投稿欄の表示*************************/
 
     text_td.appendChild(text_card_hooter);
     note_tr.appendChild(text_td);
@@ -500,7 +534,7 @@ function removeElement(element) {
 
 
 
-/** メモ
+/** 
  * アッパー：関数
  * キャメル：JavaScriptの変数
  * スネーク：HTML要素

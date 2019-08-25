@@ -39,3 +39,11 @@ body {
     box-shadow: 0 0 0 4px rgba(255, 255, 255, .6);
     transition: .4s;
 }
+
+.note-image {
+    cursor: pointer;
+}
+
+.note-timecode {
+    cursor: pointer;
+}
