@@ -17,9 +17,13 @@ var _nowVideoIndex = 0;
  * 初期化
  */
 window.onload = function() {
+    // AddHeader();
+    AddFooter();
     SetVideo(_videoObjectList, "video-area");
     SetNote();
 }
+
+
 
 /**
  * ビデオプレイヤーのセット
@@ -86,7 +90,7 @@ function SetVideo(videoObjectList, videoElmId) {
         const time_code = document.getElementById("video-timecode");
         time_code.innerHTML = timeCode;
         time_code.value = time;
-        document.title = _videoObjectList[_nowVideoIndex].name + "[" + timeCode + "]";
+        document.title = _videoObjectList[_nowVideoIndex].name.slice(0, 4) + "[" + timeCode + "]";
     };
 
     seekbar_td.appendChild(seekbar);
@@ -135,6 +139,12 @@ function SetVideo(videoObjectList, videoElmId) {
     };
 
     attribute_left_td.appendChild(button_play);
+
+    video.onended = () => {
+        PlayIconChange();
+    };
+    // video.onended = PlayIconChange(); は無理
+
     /**************************再生停止*/
 
     /**************************再生速度の変更*/
@@ -150,7 +160,7 @@ function SetVideo(videoObjectList, videoElmId) {
     speed.max = 1.5;
     speed.step = 0.5;
     speed.value = 1;
-    speed.title = "再生速度を変更する 您可以更改播放速度 You can change the playback speed";
+    speed.title = "再生速度を変更する";
 
     speed.onchange = () => {
         video.playbackRate = speed.value;
@@ -183,7 +193,7 @@ function SetVideo(videoObjectList, videoElmId) {
     back_button.classList.add("btn");
     back_button.classList.add("btn-dark");
     back_button.style.margin = "0px 10px";
-    back_button.title = "前の映像に戻る 您可以在此视频之前看到播放的视频 You can see the video played before this video";
+    back_button.title = "前の映像に戻る";
 
     back_buttonIcon.id = "video-play-icon";
     back_buttonIcon.classList.add("fas");
@@ -248,7 +258,7 @@ function SetVideo(videoObjectList, videoElmId) {
             ChangeVideo(_videoObjectList[_nowVideoIndex].url);
         }
     };
-    next_button.title = "次の映像へ進む  转到播放列表中的下一个视频 You can go to the next video";
+    next_button.title = "次の映像へ進む";
 
     attribute_center_td.appendChild(next_button);
     /**************************次の映像に進む*/
@@ -274,17 +284,24 @@ function SetVideo(videoObjectList, videoElmId) {
     video.volume = 0.01;
 
     sound.oninput = () => {
-        const video = document.getElementById("video");
         video.volume = sound.value;
     };
 
     const volume_down_icon = document.createElement("i");
     volume_down_icon.classList.add("fa");
     volume_down_icon.classList.add("fa-volume-down");
+    volume_down_icon.style.cursor = "pointer";
+    volume_down_icon.onpointerdown = () => {
+        video.volume = 0;
+    };
 
     const volume_up_icon = document.createElement("i");
     volume_up_icon.classList.add("fa");
     volume_up_icon.classList.add("fa-volume-up");
+    volume_up_icon.style.cursor = "pointer";
+    volume_up_icon.onpointerdown = () => {
+        video.volume = sound.value;
+    };
 
     span_sound.appendChild(volume_down_icon);
     span_sound.appendChild(sound);
@@ -320,9 +337,22 @@ function ChangeVideo(videoLocation) {
         const duration = video.duration;
         document.getElementById("video-endtime").innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
         document.getElementById("video-sound").max = duration;
+
+        PlayIconChange();
     };
 }
 
+
+/**
+ * 再生ボタンのアイコンを変更
+ */
+function PlayIconChange() {
+    const icon_play = document.getElementById("video-play-icon");
+    if (icon_play.classList.contains("fa-pause")) {
+        icon_play.classList.remove("fa-pause");
+        icon_play.classList.add("fa-play");
+    }
+}
 
 /**
  * 秒を時分秒に修正
@@ -377,6 +407,8 @@ function SetNote() {
  * ノートを書く
  * @param {event} event
  * TODO 秘密掲示板
+ * TODO 画面的に右にコメントリストつけた方がよかった
+ * TODO ↑レスポンシブデザイン
  */
 function TakeNote(event) {
 
@@ -416,9 +448,7 @@ function TakeNote(event) {
         cvs.height
     );
 
-    // 画像の解像度が大きい場合は縮小
-    if (cvs.width > document.getElementById("video-tbody").clientWidth / 3)
-        cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3) + "px";
+    cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
 
     image_td.appendChild(cvs);
     note_tr.appendChild(image_td);
@@ -473,6 +503,7 @@ function TakeNote(event) {
 
     /**************************メモの保存（本来はサーバ 現在はTweet）*/
     const save_button = document.createElement("button");
+    save_button.title = "動画をつぶやく";
     save_button.id = nowTime + "-save_button";
     save_button.classList.add("card-button");
     save_button.classList.add("btn");
@@ -502,6 +533,7 @@ function TakeNote(event) {
 
     /**************************メモの削除*/
     const delete_button = document.createElement("button");
+    delete_button.title = "メモを削除する";
     delete_button.classList.add("card-button");
     delete_button.classList.add("btn");
     delete_button.classList.add("btn-danger");
@@ -521,8 +553,6 @@ function TakeNote(event) {
     text_card_hooter.appendChild(delete_button);
     /**************************メモの削除*/
 
-    // メモの更新
-    // TODO 
 
     /**************************テキスト投稿欄の表示*************************/
 
@@ -562,3 +592,122 @@ function removeElement(element) {
  * 古い端末での描画
  * HTMLテンプレート版
  */
+
+
+/**
+ * ヘッダー追加
+ */
+function AddHeader() {
+    const thisname = window.location.href.split('/').pop();
+
+    const main = { "label": "OR", "url": "index.html" };
+    const menu = [
+        { "label": "N予備校", "url": "https://www.nnn.ed.nico/" },
+        { "label": "コンテスト", "url": "https://progedu.github.io/web-contests/move-webcontest2019-summer/" }
+    ];
+
+
+    const header = document.createElement("header");
+    header.id = "header";
+    // header.classList.add("navbar","navbar-inverse","navbar-fixed-top");
+    header.classList.add("navbar");
+    header.classList.add("navbar-inverse");
+    header.classList.add("navbar-fixed-top");
+    header.setAttribute('roll', 'banner');
+    // header.style.zIndex = "2";
+    // header.style.display = "none";
+
+    const nav = document.createElement("nav");
+    // nav.classList.add("navbar","fixed-top","navbar-expand-sm","navbar-dark","bg-danger","text-light");
+    nav.classList.add("navbar");
+    nav.classList.add("fixed-top");
+    nav.classList.add("navbar-expand-sm");
+    nav.classList.add("navbar-dark");
+    nav.classList.add("bg-dark");
+    nav.classList.add("text-light");
+
+    const toggle = document.createElement("button");
+    toggle.classList.add("navbar-toggler");
+    toggle.dataset.toggle = "collapse";
+    toggle.dataset.target = "#navbarToggler";
+    toggle.setAttribute('aria-controls', 'navbarToggler');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Toggle navigation');
+
+    const toggle_icon = document.createElement("span");
+    toggle_icon.classList.add("navbar-toggler-icon");
+
+    toggle.appendChild(toggle_icon);
+
+
+    const navbarToggler = document.createElement("div");
+    navbarToggler.id = "navbarToggler";
+    // navbarToggler.classList.add("collapse","navbar-collapse");
+    navbarToggler.classList.add("collapse");
+    navbarToggler.classList.add("navbar-collapse");
+
+
+
+    const ul = document.createElement("ul");
+    ul.id = "contents-list";
+    // ul.classList.add("navbar-nav","mr-auto","mt-2","mt-lg-0");
+    ul.classList.add("navbar-nav");
+    ul.classList.add("mr-auto");
+    ul.classList.add("mt-2");
+    ul.classList.add("navbar-nav");
+
+    const li = document.createElement("li");
+    li.classList.add("nav-item");
+    const a = document.createElement("a");
+    a.classList.add("navbar-brand");
+    a.href = main["url"];
+    a.innerHTML = main["label"];
+
+    li.appendChild(a);
+    ul.appendChild(li);
+
+    for (let i = 0; i < menu.length; i++) {
+        const li = document.createElement("li");
+        li.classList.add("nav-item");
+
+        const a = document.createElement("a");
+        a.classList.add("nav-link");
+        a.href = menu[i]["url"];
+        a.innerHTML = menu[i]["label"];
+
+        li.appendChild(a);
+        ul.appendChild(li);
+    }
+
+    // navbarToggler.appendChild(brand);
+    navbarToggler.appendChild(ul);
+
+    nav.appendChild(toggle);
+    nav.appendChild(navbarToggler);
+
+    header.appendChild(nav);
+
+    document.body.appendChild(header);
+}
+
+/**
+ * フッター追加
+ */
+function AddFooter() {
+    const footer = document.createElement("header");
+    footer.id = "footer";
+    footer.classList.add("fixed-bottom");
+    // footer.style.zIndex = "2";
+
+    const container = document.createElement("div");
+    container.classList.add("container");
+
+    const muted = document.createElement("span");
+    muted.classList.add("text-muted");
+    muted.innerHTML = "&copy; OR";
+
+    container.appendChild(muted);
+    footer.appendChild(container);
+
+    document.body.appendChild(footer);
+}
