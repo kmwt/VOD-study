@@ -2,7 +2,8 @@
 
 // videoの表示名とURLのリスト
 const _videoObjectList = [
-    { name: "猫の動画", url: "video-src/sample.mp4" }
+    { name: "ようこそ-ホログラム-ビジネス-24829", url: "video-src/Welcome-24829.mp4" },
+    { name: "川-山-ブリッジ-自然-水", url: "video-src/River-14205.mp4" }
 ];
 // TODO サーバ側で設定
 // TODO 起動時にユーザに指定させる
@@ -74,6 +75,8 @@ function SetVideo(videoObjectList, videoElmId) {
         video.currentTime = seekbar.value;
         const timeCode = Timecode2HMS(Math.floor(video.currentTime)).slice(3);
         document.getElementById("video-timecode").innerHTML = timeCode;
+        // TODO スコープ外で定義した変数をイベントのスコープ内で呼べるのが地味に謎
+        // オブジェクトだと参照してる扱いになるから？
     };
 
     video.ontimeupdate = () => {
@@ -270,7 +273,8 @@ function SetVideo(videoObjectList, videoElmId) {
     sound.style.margin = "0px 10px";
     video.volume = 0.01;
 
-    sound.input = () => {
+    sound.oninput = () => {
+        const video = document.getElementById("video");
         video.volume = sound.value;
     };
 
@@ -353,9 +357,8 @@ function ZeroPadding(timeCode) {
  */
 function SetNote() {
 
-    console.log("NoteSetting");
-
     const video = document.getElementById("video");
+    video.title = "クリック＆ドラッグで領域を保存";
     video.style.cursor = "pointer";
     video.onpointerdown = (event) => {
         const video = document.getElementById("video");
@@ -379,7 +382,6 @@ function TakeNote(event) {
 
     document.getElementById("video").style.cursor = "pointer";
 
-    console.log("NoteTaking");
     var today = new Date();
     const nowTime = today.getTime()
 
@@ -413,6 +415,8 @@ function TakeNote(event) {
         cvs.width,
         cvs.height
     );
+
+    // 画像の解像度が大きい場合は縮小
     if (cvs.width > document.getElementById("video-tbody").clientWidth / 3)
         cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3) + "px";
 
@@ -427,9 +431,10 @@ function TakeNote(event) {
 
     const text_card = document.createElement("div");
 
+
     /**************************メモヘッダ*/
     const text_card_header = document.createElement("div");
-    text_card_header.innerHTML = today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + " " + today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds();
+    text_card_header.innerHTML = today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + " " + today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds() + "   " + _videoObjectList[_nowVideoIndex].name;
     text_td.appendChild(text_card_header);
     /**************************メモヘッダ*/
 
@@ -453,9 +458,12 @@ function TakeNote(event) {
     note_timecode.classList.add("note-timecode");
     note_timecode.id = "note-timecode";
     note_timecode.innerHTML = video_timecode.innerHTML;
-    note_timecode.value = video_timecode.value;
+    note_timecode.value = video_timecode.value; // TODO attributeに変更
+    note_timecode.name = _nowVideoIndex; // TODO attributeに変更
+
     // クリックでメモをとった時点に戻る
     note_timecode.onpointerdown = (event) => {
+        ChangeVideo(_videoObjectList[parseInt(event.path[0].name)].url);
         const video = document.getElementById("video");
         video.currentTime = event.path[0].value;
     };
@@ -466,7 +474,7 @@ function TakeNote(event) {
     /**************************メモの保存（本来はサーバ 現在はTweet）*/
     const save_button = document.createElement("button");
     save_button.id = nowTime + "-save_button";
-    save_button.style.margin = "5px";
+    save_button.classList.add("card-button");
     save_button.classList.add("btn");
     save_button.classList.add("btn-dark");
 
@@ -478,9 +486,10 @@ function TakeNote(event) {
     save_button.appendChild(save_icom);
     save_button.onpointerdown = (event) => {
         console.log(event);
-        const video = document.getElementById("video-timecode");
+        const video_timecode = document.getElementById("video-timecode");
         const id = event.path[0].id.split("-")[0] + "-text";
-        const text = document.getElementById(id).value + " ＠ " + video.innerHTML + " in " + _videoObjectList[_nowVideoIndex].name;
+        const comment = document.getElementById(id).value;
+        const text = "「" + _videoObjectList[_nowVideoIndex].name + "」の" + video_timecode.innerHTML + (comment.length === 0 ? ("までを視聴しました") : ("で「" + comment + "」とコメントしました"));
         const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
         window.open(url, "_blank", "width=600,height=300");
         // TODO 画像を投稿できるようにする
@@ -493,7 +502,7 @@ function TakeNote(event) {
 
     /**************************メモの削除*/
     const delete_button = document.createElement("button");
-    delete_button.style.margin = "5px";
+    delete_button.classList.add("card-button");
     delete_button.classList.add("btn");
     delete_button.classList.add("btn-danger");
 
@@ -541,4 +550,15 @@ function removeElement(element) {
  * キャメル：JavaScriptの変数
  * スネーク：HTML要素
  * 先頭アンダー：グローバル
+ */
+
+/** TODO
+ * メモリが無駄
+ * テストできない
+ * 関数を分ける
+ */
+
+/** TODO
+ * 古い端末での描画
+ * HTMLテンプレート版
  */

@@ -47,3 +47,7 @@ body {
 .note-timecode {
     cursor: pointer;
 }
+
+.card-button {
+    margin: 5px
+}
