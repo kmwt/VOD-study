@@ -17,7 +17,7 @@ var _nowVideoIndex = 0;
  * 初期化
  */
 window.onload = function() {
-    // AddHeader();
+    AddHeader();
     AddFooter();
     SetVideo(_videoObjectList, "video-area");
     SetNote();
@@ -473,7 +473,7 @@ function TakeNote(event) {
     const text_area = document.createElement("input");
     text_area.id = nowTime + "-text";
     text_area.type = "text";
-    text_area.placeholder = "メモ";
+    text_area.placeholder = "コメントを入力できます";
     text_area.classList.add("form-control");
     text_card_body.appendChild(text_area);
     text_td.appendChild(text_card_body);
@@ -485,6 +485,7 @@ function TakeNote(event) {
     /**************************タイムコードを表示*/
     const video_timecode = document.getElementById("video-timecode")
     const note_timecode = document.createElement("span");
+    note_timecode.title = "この動画のタイムラインに戻る";
     note_timecode.classList.add("note-timecode");
     note_timecode.id = "note-timecode";
     note_timecode.innerHTML = video_timecode.innerHTML;
@@ -533,7 +534,7 @@ function TakeNote(event) {
 
     /**************************メモの削除*/
     const delete_button = document.createElement("button");
-    delete_button.title = "メモを削除する";
+    delete_button.title = "このメモを削除する";
     delete_button.classList.add("card-button");
     delete_button.classList.add("btn");
     delete_button.classList.add("btn-danger");
@@ -600,7 +601,7 @@ function removeElement(element) {
 function AddHeader() {
     const thisname = window.location.href.split('/').pop();
 
-    const main = { "label": "OR", "url": "index.html" };
+    const main = { "label": "OR", "url": "#" };
     const menu = [
         { "label": "N予備校", "url": "https://www.nnn.ed.nico/" },
         { "label": "コンテスト", "url": "https://progedu.github.io/web-contests/move-webcontest2019-summer/" }
@@ -674,6 +675,7 @@ function AddHeader() {
         a.classList.add("nav-link");
         a.href = menu[i]["url"];
         a.innerHTML = menu[i]["label"];
+        a.target = "_blank";
 
         li.appendChild(a);
         ul.appendChild(li);
@@ -704,7 +706,7 @@ function AddFooter() {
 
     const muted = document.createElement("span");
     muted.classList.add("text-muted");
-    muted.innerHTML = "&copy; OR";
+    muted.innerHTML = "&copy; オァｧ―――ｯｯｯｯ!!!";
 
     container.appendChild(muted);
     footer.appendChild(container);
