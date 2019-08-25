@@ -10,6 +10,7 @@ var _nowVideoIndex = 0;
  */
 window.onload = function() {
     SetVideo(_videoObjectList, "video-area");
+    SetNote();
 }
 
 /**
@@ -25,6 +26,7 @@ function SetVideo(videoObjectList, videoElmId) {
 
     const table = document.createElement("table");
     const tbody = document.createElement("tbody");
+    tbody.id = "video-tbody";
 
     /**************************Mid*************************/
     //ビデオ表示の設定
@@ -63,18 +65,18 @@ function SetVideo(videoObjectList, videoElmId) {
     seekbar.value = 0;
     seekbar.classList.add("input-range");
 
-    seekbar.addEventListener("input", function() {
+    seekbar.oninput = () => {
         video.currentTime = seekbar.value;
-        const timeCode = toHms(Math.floor(video.currentTime)).slice(3);
+        const timeCode = Timecode2HMS(Math.floor(video.currentTime)).slice(3);
         document.getElementById("video-timecode").innerHTML = timeCode;
-    }, false);
+    };
 
-    video.addEventListener("timeupdate", function() {
+    video.ontimeupdate = () => {
         seekbar.value = video.currentTime;
-        const timeCode = toHms(Math.floor(video.currentTime)).slice(3);
+        const timeCode = Timecode2HMS(Math.floor(video.currentTime)).slice(3);
         document.getElementById("video-timecode").innerHTML = timeCode;
         document.title = _videoObjectList[_nowVideoIndex].name + "[" + timeCode + "]";
-    }, false);
+    };
 
     seekbar_td.appendChild(seekbar);
     seekbar_tr.appendChild(seekbar_td);
@@ -103,7 +105,7 @@ function SetVideo(videoObjectList, videoElmId) {
     icon_play.classList.add("fa-play");
 
     button_play.appendChild(icon_play);
-    button_play.addEventListener("pointerdown", function() {
+    button_play.onpointerdown = () => {
         const icon_play = document.getElementById("video-play-icon");
         if (video.paused) {
             video.play();
@@ -117,7 +119,7 @@ function SetVideo(videoObjectList, videoElmId) {
             icon_play.classList.add("fa-play");
         }
 
-    });
+    };
 
     attribute_left_td.appendChild(button_play);
 
@@ -137,9 +139,9 @@ function SetVideo(videoObjectList, videoElmId) {
     speed.value = 1;
     speed.title = "再生速度を変更する 您可以更改播放速度 You can change the playback speed";
 
-    speed.addEventListener("change", function() {
+    speed.onchange = () => {
         video.playbackRate = speed.value;
-    }, false);
+    };
 
     const speed_down_icon = document.createElement("i");
     speed_down_icon.classList.add("fa");
@@ -176,12 +178,12 @@ function SetVideo(videoObjectList, videoElmId) {
     backButtonIcon.classList.add("fa-step-backward");
 
     backButton.appendChild(backButtonIcon);
-    backButton.addEventListener("pointerdown", function() {
+    backButton.onpointerdown = () => {
         if (_nowVideoIndex > 0) {
             _nowVideoIndex--;
-            changeVideo(_videoObjectList[_nowVideoIndex].url);
+            ChangeVideo(_videoObjectList[_nowVideoIndex].url);
         }
-    });
+    };
 
     attribute_center_td.appendChild(backButton);
 
@@ -191,7 +193,7 @@ function SetVideo(videoObjectList, videoElmId) {
 
     span_timecode.id = "video-timecode";
     span_timecode.style.margin = "0px 10px";
-    span_timecode.innerHTML = toHms(0).slice(3);
+    span_timecode.innerHTML = Timecode2HMS(0).slice(3);
 
     attribute_center_td.appendChild(span_timecode);
 
@@ -204,11 +206,11 @@ function SetVideo(videoObjectList, videoElmId) {
     const span_endtime = document.createElement("span");
     span_endtime.id = "video-endtime";
     span_endtime.style.margin = "0px 10px";
-    video.addEventListener('loadedmetadata', function() {
+    video.onloadedmetadata = () => {
         const duration = video.duration;
-        span_endtime.innerHTML = toHms(Math.floor(duration)).slice(3);
+        span_endtime.innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
         seekbar.max = duration;
-    });
+    };
 
     attribute_center_td.appendChild(span_endtime);
 
@@ -227,12 +229,12 @@ function SetVideo(videoObjectList, videoElmId) {
     nextButtonIcon.classList.add("fa-step-forward");
 
     nextButton.appendChild(nextButtonIcon);
-    nextButton.addEventListener("pointerdown", function() {
+    nextButton.onpointerdown = () => {
         if (_nowVideoIndex < _videoObjectList.length - 1) {
             _nowVideoIndex++;
-            changeVideo(_videoObjectList[_nowVideoIndex].url);
+            ChangeVideo(_videoObjectList[_nowVideoIndex].url);
         }
-    });
+    };
     nextButton.title = "次の映像へ進む  转到播放列表中的下一个视频 You can go to the next video";
 
     attribute_center_td.appendChild(nextButton);
@@ -297,15 +299,15 @@ function SetVideo(videoObjectList, videoElmId) {
  * 映像をURLに入れ替え
  * @param {String} videoLocation 映像のURL
  */
-function changeVideo(videoLocation) {
+function ChangeVideo(videoLocation) {
     const video = document.getElementById("video");
     video.src = videoLocation;
     video.load();
-    video.addEventListener('durationchange', function() {
+    video.ondurationchange = () => {
         const duration = video.duration;
-        document.getElementById("video-endtime").innerHTML = toHms(Math.floor(duration)).slice(3);
+        document.getElementById("video-endtime").innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
         document.getElementById("video-sound").max = duration;
-    });
+    };
 }
 
 
@@ -313,18 +315,18 @@ function changeVideo(videoLocation) {
  * 秒を時分秒に修正
  * @param {float} t 映像のタイムコード
  */
-function toHms(timeCode) {
+function Timecode2HMS(timeCode) {
     let hms = "";
     const h = timeCode / 3600 | 0;
     const m = timeCode % 3600 / 60 | 0;
     const s = timeCode % 60;
 
     if (h != 0)
-        hms = padZero(h) + "：" + padZero(m) + "：" + padZero(s);
+        hms = ZeroPadding(h) + "：" + ZeroPadding(m) + "：" + ZeroPadding(s);
     else if (m != 0)
-        hms = "00：" + padZero(m) + "：" + padZero(s);
+        hms = "00：" + ZeroPadding(m) + "：" + ZeroPadding(s);
     else
-        hms = "00：00：" + padZero(s);
+        hms = "00：00：" + ZeroPadding(s);
     return hms;
 }
 
@@ -332,7 +334,164 @@ function toHms(timeCode) {
  * タイムコードの0埋め
  * @param {int} timeCode 
  */
-function padZero(timeCode) {
+function ZeroPadding(timeCode) {
     if (timeCode < 10) return "0" + timeCode;
     else return timeCode;
+}
+
+/**
+ * ノートをセット
+ */
+function SetNote() {
+
+    console.log("NoteSetting");
+
+    const video = document.getElementById("video");
+    video.onpointerdown = (event) => {
+        const video = document.getElementById("video");
+        const x = Math.round(event.offsetX * video.videoWidth / video.clientWidth);
+        const y = Math.round(event.offsetY * video.videoHeight / video.clientHeight);
+        video.setAttribute("x", x);
+        video.setAttribute("y", y);
+    };
+    video.addEventListener('pointerup', TakeNote);
+}
+
+
+/**
+ * ノートを書く
+ * @param {event} event
+ */
+function TakeNote(event) {
+
+    console.log("NoteTaking");
+    const nowTime = new Date().getTime()
+
+    const note_tr = document.createElement("tr");
+    note_tr.id = nowTime + "-tr";
+    removeAllChildren(note_tr);
+
+    const image_td = document.createElement("td");
+    image_td.colSpan = 1;
+    image_td.id = nowTime + "-image";
+    image_td.style.textAlign = "center";
+
+    const lx = Math.round(event.offsetX * this.videoWidth / this.clientWidth);
+    const ly = Math.round(event.offsetY * this.videoHeight / this.clientHeight);
+    const sx = Number(this.getAttribute("x"));
+    const sy = Number(this.getAttribute("y"));
+
+    const cvs = document.createElement("canvas");
+    const ctx = cvs.getContext("2d");
+    cvs.width = Math.abs(lx - sx);
+    cvs.height = Math.abs(ly - sy);
+    ctx.drawImage(
+        this,
+        Math.min(sx, lx),
+        Math.min(sy, ly),
+        cvs.width,
+        cvs.height,
+        0,
+        0,
+        cvs.width,
+        cvs.height
+    );
+
+    image_td.appendChild(cvs);
+    note_tr.appendChild(image_td);
+
+
+    const text_td = document.createElement("td");
+    text_td.colSpan = 2;
+
+    const text_card = document.createElement("div");
+
+    const text_card_body = document.createElement("div");
+
+    const text_area = document.createElement("input");
+    text_area.id = nowTime + "-text";
+    text_area.type = "text";
+    text_area.placeholder = "メモ";
+    text_area.classList.add("form-control");
+    text_card_body.appendChild(text_area);
+    text_td.appendChild(text_card_body);
+
+
+    const text_card_hooter = document.createElement("div");
+    text_card_hooter.classList.add("text-right");
+
+    const save_button = document.createElement("button");
+    save_button.id = nowTime + "-save_button";
+    save_button.style.margin = "5px";
+    save_button.classList.add("btn");
+    save_button.classList.add("btn-dark");
+
+    const save_icom = document.createElement("i");
+    save_icom.id = nowTime + "-save_icon";
+    save_icom.classList.add("fas");
+    save_icom.classList.add("fa-save");
+
+    save_button.appendChild(save_icom);
+    save_button.onpointerdown = (event) => {
+        console.log(event);
+        const id = event.path[0].id.split("-")[0] + "-text";
+        const text = document.getElementById(id).value;
+        const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
+        window.open(url, "_blank", "width=600,height=300");
+    };
+    text_card_hooter.appendChild(save_button);
+
+    const delete_button = document.createElement("button");
+    delete_button.style.margin = "5px";
+    delete_button.classList.add("btn");
+    delete_button.classList.add("btn-danger");
+
+    const delete_icom = document.createElement("i");
+    delete_icom.classList.add("fas");
+    delete_icom.classList.add("fa-trash-alt");
+    delete_icom.onpointerdown = (event) => {
+        removeElement(event.path[4]);
+    };
+
+    delete_button.appendChild(delete_icom);
+    delete_button.onpointerdown = (event) => {
+        removeElement(event.path[3]);
+    };
+
+    text_card_hooter.appendChild(delete_button);
+
+    text_td.appendChild(text_card_hooter);
+    note_tr.appendChild(text_td);
+
+
+    /*データ送信用*/
+    // let src = ctx.toDataURL("image/jpeg");
+    // let img = document.createElement("img");
+    // img.id = "video-tmp";
+    // img.src = src;
+
+    // TODO: 一次画像保存用のtrを保存
+
+    this.removeAttribute("x");
+    this.removeAttribute("y");
+
+    document.getElementById("video-tbody").appendChild(note_tr);
+}
+
+/**
+ * 要素を削除
+ * @param {HTMLElement} element HTMLの要素
+ */
+function removeElement(element) {
+    element.parentNode.removeChild(element);
+}
+
+/**
+ * 指定した要素の子どもを全て削除
+ * @param {HTMLElement} element HTMLの要素
+ */
+function removeAllChildren(element) {
+    while (element.firstChild) { // 子どもの要素があるかぎり削除
+        element.removeChild(element.firstChild);
+    }
 }

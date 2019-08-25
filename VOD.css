@@ -1,8 +1,8 @@
 body {
     background-color: #DDDDDD;
     width: 800px;
-    margin-right: auto;
-    margin-left: auto
+    /* margin-right: auto; */
+    /* margin-left: auto */
 }
 
 .input-range[type="range"] {
