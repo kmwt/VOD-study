@@ -1,7 +1,7 @@
 'use strict';
 
 // videoの表示名とURLのリスト
-const _videoObjectList = [
+var _videoObjectList = [
     { name: "ようこそ-ホログラム-ビジネス-24829", url: "video-src/Welcome-24829.mp4" },
     { name: "川-山-ブリッジ-自然-水", url: "video-src/River-14205.mp4" }
 ];
@@ -21,6 +21,7 @@ window.onload = function() {
     AddFooter();
     SetVideo(_videoObjectList, "video-area");
     SetNote();
+    SetDropVideo();
 }
 
 
@@ -339,6 +340,9 @@ function ChangeVideo(videoLocation) {
         document.getElementById("video-sound").max = duration;
 
         PlayIconChange();
+
+        // TODO ローカルファイルを読み込むとなぜかmax音量が1を超えるため後に調査
+        document.getElementById("video-sound").max = 1;
     };
 }
 
@@ -419,7 +423,7 @@ function TakeNote(event) {
 
     const note_tr = document.createElement("tr");
     note_tr.id = nowTime + "-tr";
-
+    note_tr.setAttribute("name", "note-tr");
 
     /**************************映像から画像を抽出*************************/
     const image_td = document.createElement("td");
@@ -543,12 +547,12 @@ function TakeNote(event) {
     delete_icom.classList.add("fas");
     delete_icom.classList.add("fa-trash-alt");
     delete_icom.onpointerdown = (event) => {
-        removeElement(event.path[4]);
+        RemoveElement(event.path[4]);
     };
 
     delete_button.appendChild(delete_icom);
     delete_button.onpointerdown = (event) => {
-        removeElement(event.path[3]);
+        RemoveElement(event.path[3]);
     };
 
     text_card_hooter.appendChild(delete_button);
@@ -566,13 +570,56 @@ function TakeNote(event) {
     document.getElementById("video-tbody").appendChild(note_tr);
 }
 
+function RemoveAllNote() {
+    const allNotes = document.getElementsByName("note-tr");
+    for (let i = 0; i < allNotes.length; i++)
+        RemoveElement(allNotes[i]);
+}
+
 /**
  * 要素を削除
  * @param {HTMLElement} element HTMLの要素
  */
-function removeElement(element) {
+function RemoveElement(element) {
     element.parentNode.removeChild(element);
 }
+
+/**
+ * TODO 名前変更
+ */
+function SetDropVideo() {
+    const video = document.getElementById("video");
+    video.ondragover = handleDragOver;
+    video.ondrop = handleFileSelect;
+}
+
+function handleDragOver(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+}
+
+function handleFileSelect(event) {
+
+    _videoObjectList = [];
+
+    event.stopPropagation();
+    event.preventDefault();
+
+    var files = event.dataTransfer.files;
+    var output = [];
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        _videoObjectList.unshift({
+            name: file.name,
+            url: window.URL.createObjectURL(file)
+        });
+    }
+    ChangeVideo(_videoObjectList[0].url);
+    RemoveAllNote();
+}
+
+
 
 
 
