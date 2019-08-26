@@ -1,4 +1,5 @@
 'use strict';
+document.oncontextmenu = () => { return false; };
 
 // videoの表示名とURLのリスト
 var _videoObjectList = [
@@ -6,8 +7,7 @@ var _videoObjectList = [
     { name: "川-山-ブリッジ-自然-水", url: "video-src/River-14205.mp4" }
 ];
 // TODO サーバ側で設定
-// TODO 起動時にユーザに指定させる
-// TODO ドラッグアンドドロップでビデオ指定
+
 
 // 現在表示されているビデオのインデックス
 var _nowVideoIndex = 0;
@@ -26,7 +26,7 @@ window.onload = function() {
 
 
 
-/**
+/****************************ビデオ************************************
  * ビデオプレイヤーのセット
  * @param {Object} videoObjectList 映像のURL
  * @param {String} videoElmId 映像をセットする要素のid
@@ -343,6 +343,7 @@ function ChangeVideo(videoLocation) {
 
         // TODO ローカルファイルを読み込むとなぜかmax音量が1を超えるため後に調査
         document.getElementById("video-sound").max = 1;
+        video.play();
     };
 }
 
@@ -385,8 +386,10 @@ function ZeroPadding(timeCode) {
     if (timeCode < 10) return "0" + timeCode;
     else return timeCode;
 }
+//****************************ビデオ************************************
 
-/**
+
+/****************************ノート************************************
  * ノートをセット
  */
 function SetNote() {
@@ -576,31 +579,45 @@ function RemoveAllNote() {
         RemoveElement(allNotes[i]);
 }
 
-/**
- * 要素を削除
- * @param {HTMLElement} element HTMLの要素
- */
-function RemoveElement(element) {
-    element.parentNode.removeChild(element);
-}
 
-/**
- * TODO 名前変更
+//****************************ノート************************************
+
+
+/******************************ローカルファイルの読み込み************************************
+ * ドラッグ＆ドロップでビデオを読み込む
+ * snowlt23さんのjsvisuより
+ * https://progedu.github.io/web-contests/move-webcontest2017-summer/results/snowlt23/
+ * TODO サーバと繋がったら削除
  */
 function SetDropVideo() {
     const video = document.getElementById("video");
     video.ondragover = handleDragOver;
-    video.ondrop = handleFileSelect;
+    video.ondrop = VideoDrop;
 }
 
+/**
+ * ブラウザでの再生を停止
+ * @param {イベント} event 
+ */
 function handleDragOver(event) {
     event.stopPropagation();
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
 }
 
-function handleFileSelect(event) {
+/**
+ * ビデオファイルリストのドロップ
+ * @param {イベント} event 
+ */
+function VideoDrop(event) {
 
+    //DL防止解除
+    document.oncontextmenu = () => { return true; };
+
+    // ノートを全て削除
+    RemoveAllNote();
+
+    // 既存のビデオはすべて削除
     _videoObjectList = [];
 
     event.stopPropagation();
@@ -616,10 +633,18 @@ function handleFileSelect(event) {
         });
     }
     ChangeVideo(_videoObjectList[0].url);
-    RemoveAllNote();
 }
 
+//****************************ローカルファイルの読み込み************************************
 
+
+/**
+ * 要素を削除
+ * @param {HTMLElement} element HTMLの要素
+ */
+function RemoveElement(element) {
+    element.parentNode.removeChild(element);
+}
 
 
 
@@ -642,6 +667,8 @@ function handleFileSelect(event) {
  */
 
 
+
+/**************************どうでもいい部分*************************/
 /**
  * ヘッダー追加
  */
@@ -760,3 +787,4 @@ function AddFooter() {
 
     document.body.appendChild(footer);
 }
+/**************************どうでもいい部分*************************/
