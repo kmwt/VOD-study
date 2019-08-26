@@ -562,10 +562,16 @@ function TakeNote(event) {
     document.getElementById("video-tbody").appendChild(note_tr);
 }
 
+/**
+ * 全ノート削除
+ * document.getElementsByName("note-tr")で全要素を取得できないため
+ * 見つけ次第削除
+ * TODO 修正
+ */
 function RemoveAllNote() {
-    const allNotes = document.getElementsByName("note-tr");
-    for (let i = 0; i < allNotes.length; i++)
-        RemoveElement(allNotes[i]);
+    let allNotes;
+    while (allNotes = document.getElementsByName("note-tr")[0])
+        RemoveElement(allNotes);
 }
 //****************************ノート************************************
 
@@ -577,9 +583,8 @@ function RemoveAllNote() {
  * TODO サーバと繋がったら削除
  */
 function SetDropVideo() {
-    const video = document.getElementById("video");
-    video.ondragover = handleDragOver;
-    video.ondrop = VideoDrop;
+    document.ondragover = handleDragOver;
+    document.ondrop = VideoDrop;
 }
 
 /**
@@ -598,20 +603,17 @@ function handleDragOver(event) {
  */
 function VideoDrop(event) {
 
+    event.stopPropagation();
+    event.preventDefault();
+
     //ローカルファイル再生時はDL防止解除
     document.oncontextmenu = () => { return true; };
-
-    // ノートを全て削除
-    RemoveAllNote();
 
     // 既存のビデオはすべて削除
     for (let i = 0; i < _videoObjectList.length; i++) {
         window.URL.revokeObjectURL(_videoObjectList[i].url);
     }
     _videoObjectList = [];
-
-    event.stopPropagation();
-    event.preventDefault();
 
     var files = event.dataTransfer.files;
     var output = [];
@@ -622,7 +624,11 @@ function VideoDrop(event) {
             url: window.URL.createObjectURL(file)
         });
     }
-    ChangeVideo(_videoObjectList[0].url);
+    _nowVideoIndex = 0;
+    ChangeVideo(_videoObjectList[_nowVideoIndex].url);
+
+    // ノートを全て削除
+    RemoveAllNote();
 }
 //****************************ローカルファイルの読み込み************************************
 
