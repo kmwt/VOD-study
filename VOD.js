@@ -1,7 +1,7 @@
 'use strict';
 
 // 配信がダウンロード形式の場合はDL防止
-document.oncontextmenu = () => { return false; };
+// document.oncontextmenu = () => { return false; };
 
 // videoの表示名とURLのリスト
 var _videoObjectList = [
@@ -145,7 +145,9 @@ function SetVideo(videoObjectList, videoElmId) {
     attribute_left_td.appendChild(button_play);
 
     video.onended = () => {
-        PlayIconChange();
+        if (icon_play.classList.contains("fa-pause"))
+            icon_play.classList.remove("fa-pause");
+        icon_play.classList.add("fa-play");
     };
     // video.onended = PlayIconChange(); は無理
 
@@ -356,7 +358,7 @@ function Timecode2HMS(timeCode) {
     let hms = "";
     const h = timeCode / 3600 | 0;
     const m = timeCode % 3600 / 60 | 0;
-    const s = timeCode % 60;
+    const s = parseInt(timeCode) % 60;
 
     if (h != 0)
         hms = ZeroPadding(h) + "：" + ZeroPadding(m) + "：" + ZeroPadding(s);
@@ -409,12 +411,16 @@ function TakeNote(event) {
 
     document.getElementById("video").style.cursor = "pointer";
 
+    const video = document.getElementById("video");
+
     var today = new Date();
     const nowTime = today.getTime()
 
     const note_tr = document.createElement("tr");
     note_tr.id = nowTime + "-tr";
     note_tr.setAttribute("name", "note-tr");
+    note_tr.setAttribute("video-name", _videoObjectList[_nowVideoIndex].name);
+    note_tr.setAttribute("video-timecode", video.currentTime);
 
     /**************************映像から画像を抽出*************************/
     const image_td = document.createElement("td");
@@ -503,20 +509,15 @@ function TakeNote(event) {
     save_button.id = nowTime + "-save_button";
     save_button.classList.add("card-button");
     save_button.classList.add("btn");
-    save_button.classList.add("btn-dark");
-
-    const save_icom = document.createElement("i");
-    save_icom.id = nowTime + "-save_icon";
-    save_icom.classList.add("fas");
-    save_icom.classList.add("fa-save");
-
-    save_button.appendChild(save_icom);
+    save_button.classList.add("btn-primary");
     save_button.onpointerdown = (event) => {
-        console.log(event);
-        const video_timecode = document.getElementById("video-timecode");
-        const id = event.path[0].id.split("-")[0] + "-text";
-        const comment = document.getElementById(id).value;
-        const text = "「" + _videoObjectList[_nowVideoIndex].name + "」の" + video_timecode.innerHTML + (comment.length === 0 ? ("までを視聴しました") : ("で「" + comment + "」とコメントしました"));
+        // TODO 複数のメモでバグ
+        const id = event.path[0].id.split("-")[0];
+        console.log(id);
+        const comment = document.getElementById(id + "-text").value;
+        const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
+        const videoName = document.getElementById(id + "-tr").getAttribute("video-name");
+        const text = "「" + videoName + "」の " + Timecode2HMS(timeCode) + (comment.length === 0 ? (" までを視聴しました") : (" で 「" + comment + "」 とコメントしました"));
         const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
         window.open(url, "_blank", "width=600,height=300");
         // TODO 画像を投稿できるようにする
@@ -524,6 +525,14 @@ function TakeNote(event) {
         // GetterでURLからパラメタを読み込ませたほうがよかったような気がした
         // TODO 
     };
+
+    const save_icom = document.createElement("i");
+    save_icom.id = nowTime + "-save_icon";
+    save_icom.classList.add("fab");
+    save_icom.classList.add("fa-twitter");
+    save_button.onpointerdown = save_button.onpointerdown;
+
+    save_button.appendChild(save_icom);
     text_card_hooter.appendChild(save_button);
     /**************************メモの保存（本来はサーバ 現在はTweet）*/
 
@@ -534,18 +543,18 @@ function TakeNote(event) {
     delete_button.classList.add("card-button");
     delete_button.classList.add("btn");
     delete_button.classList.add("btn-danger");
+    delete_button.onpointerdown = (event) => {
+        RemoveElement(event.path[3]);
+    };
 
     const delete_icom = document.createElement("i");
     delete_icom.classList.add("fas");
     delete_icom.classList.add("fa-trash-alt");
+    delete_icom.onpointerdown = delete_button.onpointerdown;
     delete_icom.onpointerdown = (event) => {
         RemoveElement(event.path[4]);
     };
-
     delete_button.appendChild(delete_icom);
-    delete_button.onpointerdown = (event) => {
-        RemoveElement(event.path[3]);
-    };
 
     text_card_hooter.appendChild(delete_button);
     /**************************メモの削除*/

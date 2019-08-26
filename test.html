@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="video">Drop files here</div>
+    <output id="list"></output>
+    <video id="tee"></video>
+    <button id="btn">test</button>
+    <script>
+        let videos = [];
+
+        function handleFileSelect(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            var files = evt.dataTransfer.files; // FileList object.
+            // files is a FileList of File objects. List some properties.
+            var output = [];
+            for (var i = 0, f; f = files[i]; i++) {
+                output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                    f.size, ' bytes, last modified: ',
+                    f.lastModifiedDate.toLocaleDateString(), '</li>');
+                // console.log(URL.createObjectURL(f));
+                // document.getElementById("tee").type = f.type();
+                // document.getElementById("tee").src = URL.createObjectURL(f);
+                videos.push(window.URL.createObjectURL(f));
+
+            }
+            document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+            document.getElementById('tee').src = videos[0];
+            document.getElementById('tee').volume = 0;
+            document.getElementById('tee').play();
+
+        }
+        document.getElementById("btn").onclick = () => {
+            document.getElementById('tee').src = videos[1];
+        }
+
+        function handleDragOver(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+        }
+
+        // Setup the dnd listeners.
+        const dropZone = document.getElementById('video');
+        dropZone.ondragover = handleDragOver;
+        dropZone.ondrop = handleFileSelect;
+    </script>
+</body>
+
+</html>
