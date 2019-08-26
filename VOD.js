@@ -1,4 +1,6 @@
 'use strict';
+
+// 配信がダウンロード形式の場合はDL防止
 document.oncontextmenu = () => { return false; };
 
 // videoの表示名とURLのリスト
@@ -7,6 +9,7 @@ var _videoObjectList = [
     { name: "川-山-ブリッジ-自然-水", url: "video-src/River-14205.mp4" }
 ];
 // TODO サーバ側で設定
+// TODO ファイルリストの表示（どこに表示するか）
 
 
 // 現在表示されているビデオのインデックス
@@ -339,24 +342,10 @@ function ChangeVideo(videoLocation) {
         document.getElementById("video-endtime").innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
         document.getElementById("video-sound").max = duration;
 
-        PlayIconChange();
-
         // TODO ローカルファイルを読み込むとなぜかmax音量が1を超えるため後に調査
         document.getElementById("video-sound").max = 1;
-        video.play();
+        document.getElementById("video-play").onpointerdown();
     };
-}
-
-
-/**
- * 再生ボタンのアイコンを変更
- */
-function PlayIconChange() {
-    const icon_play = document.getElementById("video-play-icon");
-    if (icon_play.classList.contains("fa-pause")) {
-        icon_play.classList.remove("fa-pause");
-        icon_play.classList.add("fa-play");
-    }
 }
 
 /**
@@ -409,13 +398,12 @@ function SetNote() {
     video.addEventListener('pointerup', TakeNote);
 }
 
-
 /**
  * ノートを書く
  * @param {event} event
  * TODO 秘密掲示板
  * TODO 画面的に右にコメントリストつけた方がよかった
- * TODO ↑レスポンシブデザイン
+ * TODO リスト形式にして機械学習に対応
  */
 function TakeNote(event) {
 
@@ -534,6 +522,7 @@ function TakeNote(event) {
         // TODO 画像を投稿できるようにする
         // TODO タイムラインをGETとして保存した再生時間で再生できるようにする
         // GetterでURLからパラメタを読み込ませたほうがよかったような気がした
+        // TODO 
     };
     text_card_hooter.appendChild(save_button);
     /**************************メモの保存（本来はサーバ 現在はTweet）*/
@@ -578,8 +567,6 @@ function RemoveAllNote() {
     for (let i = 0; i < allNotes.length; i++)
         RemoveElement(allNotes[i]);
 }
-
-
 //****************************ノート************************************
 
 
@@ -611,13 +598,16 @@ function handleDragOver(event) {
  */
 function VideoDrop(event) {
 
-    //DL防止解除
+    //ローカルファイル再生時はDL防止解除
     document.oncontextmenu = () => { return true; };
 
     // ノートを全て削除
     RemoveAllNote();
 
     // 既存のビデオはすべて削除
+    for (let i = 0; i < _videoObjectList.length; i++) {
+        window.URL.revokeObjectURL(_videoObjectList[i].url);
+    }
     _videoObjectList = [];
 
     event.stopPropagation();
@@ -634,7 +624,6 @@ function VideoDrop(event) {
     }
     ChangeVideo(_videoObjectList[0].url);
 }
-
 //****************************ローカルファイルの読み込み************************************
 
 
@@ -669,7 +658,7 @@ function RemoveElement(element) {
 
 
 /**************************どうでもいい部分*************************/
-/**
+/**上下が寂しかったので挿入
  * ヘッダー追加
  */
 function AddHeader() {
@@ -780,7 +769,7 @@ function AddFooter() {
 
     const muted = document.createElement("span");
     muted.classList.add("text-muted");
-    muted.innerHTML = "&copy; オァｧ―――ｯｯｯｯ!!!";
+    muted.innerHTML = "&copy; OR";
 
     container.appendChild(muted);
     footer.appendChild(container);
