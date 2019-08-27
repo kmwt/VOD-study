@@ -122,8 +122,8 @@ function SetVideo(videoObjectList, videoElmId) {
     button_play.style.margin = "0px 10px 0px 0px";
 
     icon_play.id = "video-play-icon";
-    icon_play.classList.add("fas");
-    icon_play.classList.add("fa-play");
+    icon_play.classList.add("fas"); // TODO 削除
+    icon_play.classList.add("fa-play"); // TODO 削除
 
     button_play.appendChild(icon_play);
     button_play.onpointerdown = () => {
