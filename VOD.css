@@ -5,12 +5,63 @@ body {
     margin-left: auto
 }
 
+
+/*
+TODO fas系とbootstrap系を手作り（絶望）
+*/
+
+.btn {
+    cursor: pointer;
+    display: inline-block;
+    background: #444444;
+    color: #fff;
+    text-decoration: none;
+    width: 60px;
+    height: 40px;
+    line-height: 50px;
+    /* ここからborder-radiusプロパティを追加 */
+    border-radius: 8px;
+    border-style: none;
+    /*ボーダーは悪*/
+}
+
+.btn-danger {
+    background: #9b4dca;
+    color: #fff;
+}
+
+.form-control[type="text"] {
+    width: 100%;
+    margin: 10px;
+    padding: 10px;
+    height: 10px;
+    border-radius: 10px;
+    border-style: none;
+}
+
 .input-range[type="range"] {
     -webkit-appearance: none;
     appearance: none;
     background-color: #c7c7c7;
     height: 2px;
     vertical-align: middle;
+}
+
+.fas {
+    width: 100px;
+    height: 100px;
+}
+
+
+/* TODO fasの各アイコンを修正*/
+
+.fas-play {
+    width: 100px;
+    height: 100px;
+    background: transparent;
+    border-bottom: 150px solid black;
+    border-left: 100px solid transparent;
+    border-right: 100px solid transparent;
 }
 
 .input-range[type="range"]:focus {
@@ -51,8 +102,3 @@ body {
 .card-button {
     margin: 5px
 }
-
-
-/*
-TODO fas系とbootstrap系を手作り（絶望）
-*/

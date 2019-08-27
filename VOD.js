@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * TODO bootstrapとfontawesomeは禁止
+ */
+
 // 配信がダウンロード形式の場合はDL防止
 // document.oncontextmenu = () => { return false; };
 
@@ -20,8 +24,6 @@ var _nowVideoIndex = 0;
  * 初期化
  */
 window.onload = function() {
-    AddHeader();
-    AddFooter();
     SetVideo(_videoObjectList, "video-area");
     SetNote();
     SetDropVideo();
@@ -122,8 +124,8 @@ function SetVideo(videoObjectList, videoElmId) {
     button_play.style.margin = "0px 10px 0px 0px";
 
     icon_play.id = "video-play-icon";
-    icon_play.classList.add("fas"); // TODO 削除
-    icon_play.classList.add("fa-play"); // TODO 削除
+    icon_play.classList.add("fas");
+    icon_play.classList.add("fa-play");
 
     button_play.appendChild(icon_play);
     button_play.onpointerdown = () => {
@@ -669,126 +671,3 @@ function RemoveElement(element) {
  * 古い端末での描画
  * HTMLテンプレート版
  */
-
-
-
-/**************************どうでもいい部分*************************/
-/**上下が寂しかったので挿入
- * ヘッダー追加
- */
-function AddHeader() {
-    const thisname = window.location.href.split('/').pop();
-
-    const main = { "label": "OR", "url": "#" };
-    const menu = [
-        { "label": "N予備校", "url": "https://www.nnn.ed.nico/" },
-        { "label": "コンテスト", "url": "https://progedu.github.io/web-contests/move-webcontest2019-summer/" }
-    ];
-
-
-    const header = document.createElement("header");
-    header.id = "header";
-    // header.classList.add("navbar","navbar-inverse","navbar-fixed-top");
-    header.classList.add("navbar");
-    header.classList.add("navbar-inverse");
-    header.classList.add("navbar-fixed-top");
-    header.setAttribute('roll', 'banner');
-    // header.style.zIndex = "2";
-    // header.style.display = "none";
-
-    const nav = document.createElement("nav");
-    // nav.classList.add("navbar","fixed-top","navbar-expand-sm","navbar-dark","bg-danger","text-light");
-    nav.classList.add("navbar");
-    nav.classList.add("fixed-top");
-    nav.classList.add("navbar-expand-sm");
-    nav.classList.add("navbar-dark");
-    nav.classList.add("bg-dark");
-    nav.classList.add("text-light");
-
-    const toggle = document.createElement("button");
-    toggle.classList.add("navbar-toggler");
-    toggle.dataset.toggle = "collapse";
-    toggle.dataset.target = "#navbarToggler";
-    toggle.setAttribute('aria-controls', 'navbarToggler');
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', 'Toggle navigation');
-
-    const toggle_icon = document.createElement("span");
-    toggle_icon.classList.add("navbar-toggler-icon");
-
-    toggle.appendChild(toggle_icon);
-
-
-    const navbarToggler = document.createElement("div");
-    navbarToggler.id = "navbarToggler";
-    // navbarToggler.classList.add("collapse","navbar-collapse");
-    navbarToggler.classList.add("collapse");
-    navbarToggler.classList.add("navbar-collapse");
-
-
-
-    const ul = document.createElement("ul");
-    ul.id = "contents-list";
-    // ul.classList.add("navbar-nav","mr-auto","mt-2","mt-lg-0");
-    ul.classList.add("navbar-nav");
-    ul.classList.add("mr-auto");
-    ul.classList.add("mt-2");
-    ul.classList.add("navbar-nav");
-
-    const li = document.createElement("li");
-    li.classList.add("nav-item");
-    const a = document.createElement("a");
-    a.classList.add("navbar-brand");
-    a.href = main["url"];
-    a.innerHTML = main["label"];
-
-    li.appendChild(a);
-    ul.appendChild(li);
-
-    for (let i = 0; i < menu.length; i++) {
-        const li = document.createElement("li");
-        li.classList.add("nav-item");
-
-        const a = document.createElement("a");
-        a.classList.add("nav-link");
-        a.href = menu[i]["url"];
-        a.innerHTML = menu[i]["label"];
-        a.target = "_blank";
-
-        li.appendChild(a);
-        ul.appendChild(li);
-    }
-
-    // navbarToggler.appendChild(brand);
-    navbarToggler.appendChild(ul);
-
-    nav.appendChild(toggle);
-    nav.appendChild(navbarToggler);
-
-    header.appendChild(nav);
-
-    document.body.appendChild(header);
-}
-
-/**
- * フッター追加
- */
-function AddFooter() {
-    const footer = document.createElement("header");
-    footer.id = "footer";
-    footer.classList.add("fixed-bottom");
-    // footer.style.zIndex = "2";
-
-    const container = document.createElement("div");
-    container.classList.add("container");
-
-    const muted = document.createElement("span");
-    muted.classList.add("text-muted");
-    muted.innerHTML = "&copy; OR";
-
-    container.appendChild(muted);
-    footer.appendChild(container);
-
-    document.body.appendChild(footer);
-}
-/**************************どうでもいい部分*************************/
