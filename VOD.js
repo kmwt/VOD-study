@@ -430,6 +430,7 @@ function TakeNote(event) {
 
     const note_tr = document.createElement("tr");
     note_tr.id = nowTime + "-tr";
+    note_tr.classList.add("fade-in");
     note_tr.setAttribute("name", "note-tr");
     note_tr.setAttribute("video-name", _videoObjectList[_nowVideoIndex].name);
     note_tr.setAttribute("video-timecode", video.currentTime);
@@ -467,6 +468,7 @@ function TakeNote(event) {
         );
 
         cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
+
         image_td.appendChild(cvs);
         note_tr.appendChild(image_td);
     }
@@ -562,7 +564,8 @@ function TakeNote(event) {
     delete_button.classList.add("btn");
     delete_button.classList.add("btn-danger");
     delete_button.onpointerdown = (event) => {
-        RemoveElement(event.path[3]);
+        event.path[3].classList.add("fade-out");
+        setTimeout(()=>{RemoveElement(event.path[3])},500);
     };
 
     const delete_icom = document.createElement("i");
@@ -570,7 +573,8 @@ function TakeNote(event) {
     delete_icom.classList.add("fa-trash-alt");
     delete_icom.onpointerdown = delete_button.onpointerdown;
     delete_icom.onpointerdown = (event) => {
-        RemoveElement(event.path[4]);
+        event.path[4].classList.add("fade-out");
+        setTimeout(()=>{RemoveElement(event.path[4])},500);
     };
     delete_button.appendChild(delete_icom);
 
