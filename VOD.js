@@ -500,7 +500,8 @@ function TakeNote(event) {
     /**************************コメント欄表示*/
 
     const text_card_hooter = document.createElement("div");
-    text_card_hooter.classList.add("text-right");
+    // text_card_hooter.classList.add("text-right");
+    text_card_hooter.style.textAlign = "right";
 
     /**************************タイムコードを表示*/
     const video_timecode = document.getElementById("video-timecode")
@@ -530,9 +531,7 @@ function TakeNote(event) {
     save_button.classList.add("btn");
     save_button.classList.add("btn-primary");
     save_button.onpointerdown = (event) => {
-        // TODO 複数のメモでバグ
         const id = event.path[0].id.split("-")[0];
-        console.log(id);
         const comment = document.getElementById(id + "-text").value;
         const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
         const videoName = document.getElementById(id + "-tr").getAttribute("video-name");
