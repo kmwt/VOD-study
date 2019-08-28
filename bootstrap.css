@@ -1,0 +1,25 @@
+.btn {
+    cursor: pointer;
+    display: inline-block;
+    background: #444444;
+    color: #fff;
+    width: 50px;
+    height: 40px;
+    line-height: 50px;
+    border-radius: 8px;
+    border-style: none;
+}
+
+.btn-danger {
+    background: #ff0055;
+    color: #fff;
+}
+
+.form-control[type="text"] {
+    width: 95%;
+    margin: 10px;
+    padding: 10px;
+    height: 10px;
+    border-radius: 6px;
+    border-style: none;
+}

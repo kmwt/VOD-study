@@ -1,0 +1,195 @@
+.fas {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.fa-play {
+    display: block;
+    width: 0px;
+    height: 0px;
+    background: transparent;
+    border-top: 10px solid transparent;
+    border-left: 15px solid white;
+    /* border-right: 100px solid transparent; */
+    border-bottom: 10px solid transparent;
+}
+
+.fa-pause {
+    display: block;
+    width: 5px;
+    height: 20px;
+    background: white;
+    box-shadow: 10px 0;
+    border-radius: 3px;
+    border-right: 20px;
+}
+
+.fa-step-forward {
+    position: relative;
+    /* content: ""; */
+    display: block;
+    width: 0px;
+    height: 0px;
+    left: -5px;
+    background: transparent;
+    border-top: 10px solid transparent;
+    border-left: 15px solid white;
+    /* border-right: 100px solid transparent; */
+    border-bottom: 10px solid transparent;
+    /* box-shadow: 10px 0; */
+    border-right: 20px;
+}
+
+.fa-step-forward:before {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 0px;
+    height: 0px;
+    top: -10px;
+    /* left: -3px; */
+    background: transparent;
+    border-top: 10px solid transparent;
+    border-left: 15px solid white;
+    /* border-right: 100px solid transparent; */
+    border-bottom: 10px solid transparent;
+    /* box-shadow: 10px 0; */
+}
+
+.fa-step-backward {
+    position: relative;
+    /* content: ""; */
+    display: block;
+    width: 0px;
+    height: 0px;
+    left: 5px;
+    background: transparent;
+    border-top: 10px solid transparent;
+    border-left: 15px solid white;
+    /* border-right: 100px solid transparent; */
+    border-bottom: 10px solid transparent;
+    /* box-shadow: 10px 0; */
+    border-right: 20px;
+    transform: rotate(180deg);
+}
+
+.fa-step-backward:before {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 0px;
+    height: 0px;
+    top: -10px;
+    background: transparent;
+    border-top: 10px solid transparent;
+    border-left: 15px solid white;
+    /* border-right: 100px solid transparent; */
+    border-bottom: 10px solid transparent;
+    /* box-shadow: 10px 0; */
+    /* transform: rotate(180deg); */
+}
+
+.fa-volume-down {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    position: relative;
+    border-right: 7px solid #444444;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+}
+
+.fa-volume-up {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    position: relative;
+    border-right: 7px solid #444444;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+}
+
+.fa-volume-up:before {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 5px;
+    height: 10px;
+    left: 10px;
+    top: -3px;
+    border-right: 2px solid #444444;
+}
+
+.fa-volume-up:after {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 5px;
+    height: 15px;
+    left: 15px;
+    top: -5px;
+    border-right: 2px solid #444444;
+}
+
+.fa-fast-forward {
+    position: relative;
+    display: inline-block;
+    border-top: 7px solid transparent;
+    border-left: 10px solid #444444;
+    border-bottom: 7px solid transparent;
+}
+
+.fa-fast-forward:before {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 0px;
+    height: 0px;
+    top: -7px;
+    border-top: 7px solid transparent;
+    border-left: 10px solid #444444;
+    border-bottom: 7px solid transparent;
+}
+
+.fa-fast-forward:after {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 3px;
+    height: 15px;
+    left: 10px;
+    top: -7px;
+    border-left: 3px solid #444444;
+}
+
+.fa-fast-backward {
+    position: relative;
+    display: inline-block;
+    border-top: 7px solid transparent;
+    border-left: 10px solid #444444;
+    border-bottom: 7px solid transparent;
+    transform: rotate(180deg);
+}
+
+.fa-fast-backward:before {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 0px;
+    height: 0px;
+    top: -7px;
+    border-top: 7px solid transparent;
+    border-left: 10px solid #444444;
+    border-bottom: 7px solid transparent;
+}
+
+.fa-fast-backward:after {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 3px;
+    height: 15px;
+    left: 10px;
+    top: -7px;
+    border-left: 3px solid #444444;
+}

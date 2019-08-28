@@ -5,44 +5,14 @@ body {
     margin-left: auto
 }
 
-.video-table{
-    width:100%;
+.video-table {
+    width: 100%;
     text-align: center;
 }
 
-.note-table{
-    width:100%;
-    /* text-align: center; */
-}
-
-/*
-TODO fas系とbootstrap系を手作り（絶望）
-*/
-
-.btn {
-    cursor: pointer;
-    display: inline-block;
-    background: #444444;
-    color: #fff;
-    width: 60px;
-    height: 40px;
-    line-height: 50px;
-    border-radius: 8px;
-    border-style: none;
-}
-
-.btn-danger {
-    background:#ff0055;
-    color: #fff;
-}
-
-.form-control[type="text"] {
+.note-table {
     width: 100%;
-    margin: 10px;
-    padding: 10px;
-    height: 10px;
-    border-radius: 6px;
-    border-style: none;
+    /* text-align: center; */
 }
 
 .input-range[type="range"] {
@@ -53,7 +23,7 @@ TODO fas系とbootstrap系を手作り（絶望）
     vertical-align: middle;
 }
 
-.input-range{
+.input-range {
     cursor: pointer;
 }
 
@@ -97,30 +67,30 @@ TODO fas系とbootstrap系を手作り（絶望）
 
 @keyframes fadeIn {
     0% {
-        opacity :0;
+        opacity: 0;
         transform: translateY(-50px);
     }
     100% {
-        opacity:1;
+        opacity: 1;
         transform: translateY(0px);
     }
 }
 
 @keyframes fadeOut {
     0% {
-        opacity :1;
+        opacity: 1;
     }
     100% {
-        opacity:0;
+        opacity: 0;
     }
 }
 
-.fade-in{
+.fade-in {
     animation-name: fadeIn;
     animation-duration: 0.5s;
 }
 
-.fade-out{
+.fade-out {
     animation-name: fadeOut;
     animation-duration: 0.5s;
 }
