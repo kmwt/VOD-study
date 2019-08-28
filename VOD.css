@@ -5,6 +5,15 @@ body {
     margin-left: auto
 }
 
+.video-table{
+    width:100%;
+    text-align: center;
+}
+
+.note-table{
+    width:100%;
+    /* text-align: center; */
+}
 
 /*
 TODO fas系とbootstrap系を手作り（絶望）

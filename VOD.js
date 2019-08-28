@@ -24,8 +24,8 @@ var _nowVideoIndex = 0;
  * 初期化
  */
 window.onload = function() {
-    SetVideo(_videoObjectList, "video-area");
-    SetNote();
+    SetVideo(_videoObjectList[0].url, "video-area");
+    SetNote("note-area");
     SetDropVideo();
 }
 
@@ -33,16 +33,15 @@ window.onload = function() {
 
 /****************************ビデオ************************************
  * ビデオプレイヤーのセット
- * @param {Object} videoObjectList 映像のURL
+ * @param {Object} videoLocation 映像のURL
  * @param {String} videoElmId 映像をセットする要素のid
  */
-function SetVideo(videoObjectList, videoElmId) {
-
-    const videoLocation = videoObjectList[0].url;
+function SetVideo(videoLocation, videoElmId) {
 
     const main = videoElmId ? document.getElementById(videoElmId) : document.body;
 
     const table = document.createElement("table");
+    table.classList.add("video-table");
     const tbody = document.createElement("tbody");
     tbody.id = "video-tbody";
 
@@ -384,8 +383,19 @@ function ZeroPadding(timeCode) {
 
 /****************************ノート************************************
  * ノートをセット
+ * @param {String} noteElmId 
  */
-function SetNote() {
+function SetNote(noteElmId) {
+
+    const main = noteElmId ? document.getElementById(noteElmId) : document.body
+
+    const table = document.createElement("table");
+    table.classList.add("note-table");
+    const tbody = document.createElement("tbody");
+    tbody.id = "note-tbody";
+
+    table.appendChild(tbody);
+    main.appendChild(table);
 
     const video = document.getElementById("video");
     video.title = "クリック＆ドラッグで領域を保存";
@@ -426,41 +436,48 @@ function TakeNote(event) {
 
     /**************************映像から画像を抽出*************************/
     const image_td = document.createElement("td");
-    image_td.colSpan = 1;
-    image_td.id = nowTime + "-image";
-    image_td.style.textAlign = "center";
 
     const lx = Math.round(event.offsetX * this.videoWidth / this.clientWidth);
     const ly = Math.round(event.offsetY * this.videoHeight / this.clientHeight);
     const sx = Number(this.getAttribute("x"));
     const sy = Number(this.getAttribute("y"));
 
-    const cvs = document.createElement("canvas");
-    const ctx = cvs.getContext("2d");
-    cvs.width = Math.abs(lx - sx);
-    cvs.height = Math.abs(ly - sy);
-    ctx.drawImage(
-        this,
-        Math.min(sx, lx),
-        Math.min(sy, ly),
-        cvs.width,
-        cvs.height,
-        0,
-        0,
-        cvs.width,
-        cvs.height
-    );
+	const imageLangth = Math.max(Math.abs(lx - sx), Math.abs(ly - sy));
 
-    cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
+    if (imageLangth > 10) {
 
-    image_td.appendChild(cvs);
-    note_tr.appendChild(image_td);
+        image_td.colSpan = 1;
+        image_td.id = nowTime + "-image";
+        image_td.style.textAlign = "center";
+
+        const cvs = document.createElement("canvas");
+        const ctx = cvs.getContext("2d");
+        cvs.width = Math.abs(lx - sx);
+        cvs.height = Math.abs(ly - sy);
+        ctx.drawImage(
+            this,
+            Math.min(sx, lx),
+            Math.min(sy, ly),
+            cvs.width,
+            cvs.height,
+            0,
+            0,
+            cvs.width,
+            cvs.height
+        );
+
+        cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
+        image_td.appendChild(cvs);
+        note_tr.appendChild(image_td);
+    }
+
     /**************************映像から画像を抽出*************************/
 
 
     /**************************テキスト投稿欄の表示*************************/
     const text_td = document.createElement("td");
-    text_td.colSpan = 2;
+    text_td.colSpan = imageLangth > 10 ? 2 : 3;
+    text_td.style.padding = "0px 10px";
 
     const text_card = document.createElement("div");
 
@@ -570,7 +587,7 @@ function TakeNote(event) {
     this.removeAttribute("x");
     this.removeAttribute("y");
 
-    document.getElementById("video-tbody").appendChild(note_tr);
+    document.getElementById("note-tbody").appendChild(note_tr);
 }
 
 /**
@@ -630,10 +647,11 @@ function VideoDrop(event) {
     var output = [];
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        _videoObjectList.unshift({
-            name: file.name,
-            url: window.URL.createObjectURL(file)
-        });
+        if (file.type === "video/mp4")
+            _videoObjectList.unshift({
+                name: file.name,
+                url: window.URL.createObjectURL(file)
+            });
     }
     _nowVideoIndex = 0;
     ChangeVideo(_videoObjectList[_nowVideoIndex].url);
