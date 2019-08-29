@@ -1,16 +1,12 @@
 'use strict';
 
-/**
- * TODO bootstrapとfontawesomeは禁止
- */
-
 // 配信がダウンロード形式の場合はDL防止
 // document.oncontextmenu = () => { return false; };
 
 // videoの表示名とURLのリスト
 var _videoObjectList = [
-    { name: "ようこそ-ホログラム-ビジネス-24829", url: "video-src/Welcome-24829.mp4" },
-    { name: "川-山-ブリッジ-自然-水", url: "video-src/River-14205.mp4" }
+    { name: "サンプル：川-山-ブリッジ-自然-水", url: "video-src/River-14205.mp4" },
+    { name: "サンプル：ようこそ-ホログラム-ビジネス-24829", url: "video-src/Welcome-24829.mp4" }
 ];
 // TODO サーバ側で設定
 // TODO ファイルリストの表示（どこに表示するか）
@@ -24,8 +20,14 @@ var _nowVideoIndex = 0;
  * 初期化
  */
 window.onload = function() {
-    SetVideo(_videoObjectList[0].url, "video-area");
-    SetNote("note-area");
+    const video_area = SetVideo(_videoObjectList[0].url);
+    document.getElementById("video-area").appendChild(video_area);
+
+    const video_list_area = SetVideoList(_videoObjectList);
+    document.getElementById("video-area").appendChild(video_list_area);
+
+    const note_area = SetNote();
+    document.getElementById("note-area").appendChild(note_area);
     SetDropVideo();
 }
 
@@ -36,9 +38,7 @@ window.onload = function() {
  * @param {Object} videoLocation 映像のURL
  * @param {String} videoElmId 映像をセットする要素のid
  */
-function SetVideo(videoLocation, videoElmId) {
-
-    const main = videoElmId ? document.getElementById(videoElmId) : document.body;
+function SetVideo(videoLocation) {
 
     const table = document.createElement("table");
     table.classList.add("video-table");
@@ -217,7 +217,6 @@ function SetVideo(videoLocation, videoElmId) {
     };
 
     attribute_center_td.appendChild(back_button);
-    // TODO １０秒戻るなどにしたほうがよかった
     /**************************前の映像に戻る*/
 
     /**************************映像の時間を表示*/
@@ -327,10 +326,53 @@ function SetVideo(videoLocation, videoElmId) {
     tbody.appendChild(attribute_tr);
 
     table.appendChild(tbody);
-    main.appendChild(table);
 
     return table;
 
+}
+
+/**
+ * 
+ * @param {*} videoObjectList 
+ */
+function SetVideoList(videoObjectList) {
+    const table = document.createElement("table");
+    table.id = "video-list";
+    table.classList.add("video-lists-table");
+    table.style.width = "100%";
+    const tbody = document.createElement("tbody");
+
+    for (let i = 0; i < videoObjectList.length; i++) {
+        const videoObject = videoObjectList[i];
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        if (i === 0) td.classList.add("video-list-active");
+        const url = videoObject.url;
+
+        td.setAttribute("name", "video-names");
+
+        td.classList.add("video-list");
+        td.innerHTML = videoObject.name;
+
+        tr.appendChild(td);
+        tr.style.cursor = "pointer";
+        tr.onpointerdown = () => {
+            const video_names = document.getElementsByName("video-names");
+            video_names.forEach(elm => {
+                elm.classList.remove("video-list-active");
+            });
+            td.classList.add("video-list-active");
+            if (_nowVideoIndex === i)
+                return;
+            ChangeVideo(url);
+            _nowVideoIndex = i;
+        }
+        tbody.appendChild(tr);
+    }
+
+    table.appendChild(tbody);
+
+    return table;
 }
 
 
@@ -347,9 +389,17 @@ function ChangeVideo(videoLocation) {
         document.getElementById("video-endtime").innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
         document.getElementById("video-sound").max = duration;
 
-        // TODO ローカルファイルを読み込むとなぜかmax音量が1を超えるため後に調査
         document.getElementById("video-sound").max = 1;
         document.getElementById("video-play").onpointerdown();
+
+        const video_names = document.getElementsByName("video-names");
+        console.log(video_names);
+        if (video_names.length > 0) {
+            video_names.forEach(elm => {
+                elm.classList.remove("video-list-active");
+            });
+            video_names[_nowVideoIndex].classList.add("video-list-active");
+        }
     };
 }
 
@@ -385,11 +435,9 @@ function ZeroPadding(timeCode) {
 
 /****************************ノート************************************
  * ノートをセット
- * @param {String} noteElmId 
+ * @param {String} return 
  */
-function SetNote(noteElmId) {
-
-    const main = noteElmId ? document.getElementById(noteElmId) : document.body
+function SetNote() {
 
     const table = document.createElement("table");
     table.classList.add("note-table");
@@ -397,7 +445,6 @@ function SetNote(noteElmId) {
     tbody.id = "note-tbody";
 
     table.appendChild(tbody);
-    main.appendChild(table);
 
     const video = document.getElementById("video");
     video.title = "クリック＆ドラッグで領域を保存";
@@ -412,6 +459,8 @@ function SetNote(noteElmId) {
         // TODO 矩形を描画する
     };
     video.addEventListener('pointerup', TakeNote);
+
+    return table;
 }
 
 /**
@@ -530,12 +579,12 @@ function TakeNote(event) {
     /**************************メモの保存（本来はサーバ 現在はTweet）*/
     const save_button = document.createElement("button");
     save_button.title = "動画をつぶやく";
-    save_button.id = nowTime + "-save_button";
+    save_button.id = nowTime + "-save-button";
     save_button.classList.add("card-button");
     save_button.classList.add("btn");
     save_button.classList.add("btn-primary");
     save_button.onpointerdown = (event) => {
-        const id = event.path[0].id.split("-")[0];
+        const id = save_button.id.split("-")[0];
         const comment = document.getElementById(id + "-text").value;
         const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
         const videoName = document.getElementById(id + "-tr").getAttribute("video-name");
@@ -545,10 +594,9 @@ function TakeNote(event) {
     };
 
     const save_icom = document.createElement("i");
-    save_icom.id = nowTime + "-save_icon";
+    save_icom.id = nowTime + "-save-icon";
     save_icom.classList.add("fas");
     save_icom.classList.add("fa-twitter");
-    save_button.onpointerdown = save_button.onpointerdown;
 
     save_button.appendChild(save_icom);
     text_card_hooter.appendChild(save_button);
@@ -557,28 +605,26 @@ function TakeNote(event) {
 
     /**************************メモの削除*/
     const delete_button = document.createElement("button");
+    delete_button.id = nowTime + "-delete-button";
     delete_button.title = "このメモを削除する";
     delete_button.classList.add("card-button");
     delete_button.classList.add("btn");
     delete_button.classList.add("btn-danger");
     delete_button.onpointerdown = (event) => {
-        event.path[3].classList.add("fade-out");
-        event.path[3].addEventListener("animationend", () => {
-            RemoveElement(event.path[3]);
+        const id = delete_button.id.split("-")[0];
+        const note_tr = document.getElementById(id + "-tr");
+        note_tr.classList.add("fade-out");
+        note_tr.addEventListener("animationend", () => {
+            RemoveElement(note_tr);
         });
     };
 
-    const delete_icom = document.createElement("i");
-    delete_icom.classList.add("fas");
-    delete_icom.classList.add("fa-trash-alt");
-    delete_icom.onpointerdown = delete_button.onpointerdown;
-    delete_icom.onpointerdown = (event) => {
-        event.path[4].classList.add("fade-out");
-        event.path[4].addEventListener("animationend", () => {
-            RemoveElement(event.path[4]);
-        });
-    };
-    delete_button.appendChild(delete_icom);
+    const delete_icon = document.createElement("i");
+    delete_icon.id = nowTime + "-delete-icon";
+    delete_icon.classList.add("fas");
+    delete_icon.classList.add("fa-trash-alt");
+
+    delete_button.appendChild(delete_icon);
 
     text_card_hooter.appendChild(delete_button);
     /**************************メモの削除*/
@@ -597,9 +643,6 @@ function TakeNote(event) {
 
 /**
  * 全ノート削除
- * document.getElementsByName("note-tr")で全要素を取得できないため
- * 見つけ次第削除
- * TODO 修正
  */
 function RemoveAllNote() {
     let allNotes;
@@ -611,9 +654,6 @@ function RemoveAllNote() {
 
 /******************************ローカルファイルの読み込み************************************
  * ドラッグ＆ドロップでビデオを読み込む
- * snowlt23さんのjsvisuより
- * https://progedu.github.io/web-contests/move-webcontest2017-summer/results/snowlt23/
- * TODO サーバと繋がったら削除
  */
 function SetDropVideo() {
     document.ondragover = handleDragOver;
@@ -672,7 +712,7 @@ function VideoDrop(event) {
  * @param {HTMLElement} element HTMLの要素
  */
 function RemoveElement(element) {
-    element.parentNode.removeChild(element);
+    if (element) element.parentNode.removeChild(element);
 }
 
 
@@ -682,15 +722,4 @@ function RemoveElement(element) {
  * キャメル：JavaScriptの変数
  * スネーク：HTML要素
  * 先頭アンダー：グローバル
- */
-
-/** TODO
- * メモリが無駄
- * テストできない
- * 関数を分ける
- */
-
-/** TODO
- * 古い端末での描画
- * HTMLテンプレート版
  */

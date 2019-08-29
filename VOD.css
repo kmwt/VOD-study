@@ -1,18 +1,11 @@
 body {
     background-color: #DDDDDD;
-    width: 800px;
-    margin-right: auto;
-    margin-left: auto
+    font-family: YuGothicM, Meiryo;
 }
 
 .video-table {
     width: 100%;
     text-align: center;
-}
-
-.note-table {
-    width: 100%;
-    /* text-align: center; */
 }
 
 .input-range[type="range"] {
@@ -53,6 +46,31 @@ body {
     transition: .4s;
 }
 
+.video-lists-table {
+    display: none;
+}
+
+.video-list {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+.video-list:focus {
+    font-weight: 500;
+}
+
+.video-list-active {
+    color: #FFFFFF;
+    background-color: #444444;
+}
+
+.note-table {
+    padding: 10px;
+    width: 100%;
+    /* text-align: center; */
+}
+
 .note-image {
     cursor: pointer;
 }
@@ -76,6 +94,17 @@ body {
     }
 }
 
+@keyframes fadeInWide {
+    0% {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0px);
+    }
+}
+
 @keyframes fadeOut {
     0% {
         opacity: 1;
@@ -95,4 +124,48 @@ body {
     animation-duration: 0.5s;
     width: 32px;
     height: 32px;
+}
+
+@media screen and (max-width:800px) {
+    body {
+        width: 800px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+    .col {
+        display: block;
+    }
+    .fade-in {
+        animation-name: fadeIn;
+        animation-duration: 0.5s;
+    }
+    .fade-out {
+        animation-name: fadeOut;
+        animation-duration: 0.5s;
+        width: 32px;
+        height: 32px;
+    }
+    .video-lists-table {
+        display: none;
+    }
+}
+
+@media screen and (min-width:1600px) {
+    .col {
+        vertical-align: top;
+        display: inline-block;
+    }
+    .fade-in {
+        animation-name: fadeInWide;
+        animation-duration: 0.5s;
+    }
+    .fade-out {
+        animation-name: fadeOut;
+        animation-duration: 0.5s;
+        width: 32px;
+        height: 32px;
+    }
+    .video-lists-table {
+        display: table;
+    }
 }
