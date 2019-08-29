@@ -176,10 +176,12 @@ function SetVideo(videoLocation, videoElmId) {
     const speed_down_icon = document.createElement("i");
     speed_down_icon.classList.add("fa");
     speed_down_icon.classList.add("fa-fast-backward");
+    speed_down_icon.title = "再生速度を変更する";
 
     const speed_up_icon = document.createElement("i");
     speed_up_icon.classList.add("fa");
     speed_up_icon.classList.add("fa-fast-forward");
+    speed_up_icon.title = "再生速度を変更する";
 
     span_speed.append(speed_down_icon);
     span_speed.append(speed);
@@ -443,7 +445,7 @@ function TakeNote(event) {
     const sx = Number(this.getAttribute("x"));
     const sy = Number(this.getAttribute("y"));
 
-	const imageLangth = Math.max(Math.abs(lx - sx), Math.abs(ly - sy));
+    const imageLangth = Math.max(Math.abs(lx - sx), Math.abs(ly - sy));
 
     if (imageLangth > 10) {
 
@@ -548,7 +550,7 @@ function TakeNote(event) {
 
     const save_icom = document.createElement("i");
     save_icom.id = nowTime + "-save_icon";
-    save_icom.classList.add("fab");
+    save_icom.classList.add("fas");
     save_icom.classList.add("fa-twitter");
     save_button.onpointerdown = save_button.onpointerdown;
 
@@ -565,7 +567,7 @@ function TakeNote(event) {
     delete_button.classList.add("btn-danger");
     delete_button.onpointerdown = (event) => {
         event.path[3].classList.add("fade-out");
-        setTimeout(()=>{RemoveElement(event.path[3])},500);
+        setTimeout(() => { RemoveElement(event.path[3]) }, 500);
     };
 
     const delete_icom = document.createElement("i");
@@ -574,7 +576,7 @@ function TakeNote(event) {
     delete_icom.onpointerdown = delete_button.onpointerdown;
     delete_icom.onpointerdown = (event) => {
         event.path[4].classList.add("fade-out");
-        setTimeout(()=>{RemoveElement(event.path[4])},500);
+        setTimeout(() => { RemoveElement(event.path[4]) }, 500);
     };
     delete_button.appendChild(delete_icom);
 

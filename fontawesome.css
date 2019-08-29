@@ -169,6 +169,7 @@
     border-left: 10px solid #444444;
     border-bottom: 7px solid transparent;
     transform: rotate(180deg);
+    margin-left: 10px;
 }
 
 .fa-fast-backward:before {
@@ -192,4 +193,54 @@
     left: 10px;
     top: -7px;
     border-left: 3px solid #444444;
+}
+
+.fa-twitter {
+    position: relative;
+    display: block;
+    background-image: url(img/Twitter_Logo_WhiteOnBlue.svg);
+    background-size: 100%;
+    width: 100%;
+    height: 100%;
+}
+
+.fa-trash-alt {
+    display: block;
+    font-size: 100px;
+    position: relative;
+    width: 0.9em;
+    height: 1.2em;
+    top: -0.44em;
+    left: -0.35em;
+    border-left: 0.1em solid#ffffff;
+    border-right: 0.1em solid#ffffff;
+    border-bottom: 0.1em solid#ffffff;
+    border-radius: 0 0 0.1em 0.1em;
+    background: linear-gradient(to bottom, #ffffff 0%, #ffffff 100%) 0.2em 0.2em, linear-gradient(to bottom, #ffffff 0%, #ffffff 100%) 0.4em 0.2em, linear-gradient(to bottom, #ffffff 0%, #ffffff 100%) 0.6em 0.2em;
+    background-size: 0.1em 0.8em;
+    background-repeat: no-repeat;
+    transform: scale(0.15)
+}
+
+.fa-trash-alt::before {
+    content: "";
+    position: absolute;
+    top: -0.1em;
+    left: -0.2em;
+    width: 1.3em;
+    height: 0.1em;
+    background-color: #ffffff;
+}
+
+.fa-trash-alt::after {
+    content: "";
+    position: absolute;
+    top: -0.3em;
+    left: 0.1em;
+    width: 0.5em;
+    height: 0.2em;
+    border-top: 0.1em solid#ffffff;
+    border-left: 0.1em solid#ffffff;
+    border-right: 0.1em solid#ffffff;
+    border-radius: 0.1em 0.1em 0 0;
 }
