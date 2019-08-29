@@ -542,10 +542,6 @@ function TakeNote(event) {
         const text = "「" + videoName + "」の " + Timecode2HMS(timeCode) + (comment.length === 0 ? (" までを視聴しました") : (" で 「" + comment + "」 とコメントしました"));
         const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
         window.open(url, "_blank", "width=600,height=300");
-        // TODO 画像を投稿できるようにする
-        // TODO タイムラインをGETとして保存した再生時間で再生できるようにする
-        // GetterでURLからパラメタを読み込ませたほうがよかったような気がした
-        // TODO 
     };
 
     const save_icom = document.createElement("i");
@@ -567,7 +563,9 @@ function TakeNote(event) {
     delete_button.classList.add("btn-danger");
     delete_button.onpointerdown = (event) => {
         event.path[3].classList.add("fade-out");
-        setTimeout(() => { RemoveElement(event.path[3]) }, 500);
+        event.path[3].addEventListener("animationend", () => {
+            RemoveElement(event.path[3]);
+        });
     };
 
     const delete_icom = document.createElement("i");
@@ -576,7 +574,9 @@ function TakeNote(event) {
     delete_icom.onpointerdown = delete_button.onpointerdown;
     delete_icom.onpointerdown = (event) => {
         event.path[4].classList.add("fade-out");
-        setTimeout(() => { RemoveElement(event.path[4]) }, 500);
+        event.path[4].addEventListener("animationend", () => {
+            RemoveElement(event.path[4]);
+        });
     };
     delete_button.appendChild(delete_icom);
 
