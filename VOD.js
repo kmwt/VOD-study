@@ -34,9 +34,9 @@ window.onload = function() {
 
 
 /****************************ビデオ************************************
- * ビデオプレイヤーのセット
+ * ビデオプレイヤーの生成
  * @param {Object} videoLocation 映像のURL
- * @param {String} videoElmId 映像をセットする要素のid
+ * @return {string} ビデオと再生制御を含むテーブルエレメント
  */
 function SetVideo(videoLocation) {
 
@@ -84,18 +84,7 @@ function SetVideo(videoLocation) {
         video.currentTime = seekbar.value;
         const timeCode = Timecode2HMS(Math.floor(video.currentTime)).slice(3);
         document.getElementById("video-timecode").innerHTML = timeCode;
-        // TODO スコープ外で定義した変数をイベントのスコープ内で呼べるのが地味に謎
-        // オブジェクトだと参照してる扱いになるから？
-    };
-
-    video.ontimeupdate = () => {
-        const time = video.currentTime;
-        seekbar.value = time;
-        const timeCode = Timecode2HMS(Math.floor(time)).slice(3);
-        const time_code = document.getElementById("video-timecode");
-        time_code.innerHTML = timeCode;
-        time_code.value = time;
-        document.title = _videoObjectList[_nowVideoIndex].name.slice(0, 4) + "[" + timeCode + "]";
+        // なぜかスコープ外で定義した変数をイベントのスコープ内で呼べる
     };
 
     seekbar_td.appendChild(seekbar);
@@ -120,7 +109,7 @@ function SetVideo(videoLocation) {
     button_play.id = "video-play";
     button_play.classList.add("btn");
     button_play.classList.add("btn-dark");
-    button_play.style.margin = "0px 10px 0px 0px";
+    button_play.style.marginRight = "10px";
 
     icon_play.id = "video-play-icon";
     icon_play.classList.add("fas");
@@ -150,7 +139,7 @@ function SetVideo(videoLocation) {
             icon_play.classList.remove("fa-pause");
         icon_play.classList.add("fa-play");
     };
-    // video.onended = PlayIconChange(); は無理
+    // video.onended = PlayIconChange(); は不可能
 
     /**************************再生停止*/
 
@@ -243,6 +232,20 @@ function SetVideo(videoLocation) {
         seekbar.max = duration;
     };
 
+    video.ontimeupdate = () => {
+        const time = video.currentTime;
+        seekbar.value = time;
+        const timeCode = Timecode2HMS(Math.floor(time)).slice(3);
+        const time_code = document.getElementById("video-timecode");
+        time_code.innerHTML = timeCode;
+        time_code.value = time;
+        if (document.hasFocus())
+            document.title = "NoteVideo";
+        else // 非フォーカス時はタイトルを動画情報に変更
+            document.title = _videoObjectList[_nowVideoIndex].name.slice(0, 4) + "[" + timeCode + "]";
+
+    };
+
     attribute_center_td.appendChild(span_endtime);
     /**************************映像の時間を表示*/
 
@@ -273,13 +276,12 @@ function SetVideo(videoLocation) {
 
     /**************************音量の調整*/
     const attribute_right_td = document.createElement("td");
-    attribute_right_td.style.textAlign = "right";
     attribute_right_td.style.padding = "10px";
 
     const span_sound = document.createElement("span");
     const sound = document.createElement("input");
 
-    span_sound.style.margin = "0px 10px";
+    span_sound.style.marginRight = "10px";
 
     sound.id = "video-sound";
     sound.type = "range";
@@ -332,8 +334,37 @@ function SetVideo(videoLocation) {
 }
 
 /**
- * 
- * @param {*} videoObjectList 
+ * 映像をURLに入れ替え
+ * @param {String} videoLocation 映像のURL
+ */
+function ChangeVideo(videoLocation) {
+    const video = document.getElementById("video");
+    const videoHeight = video.style.height;
+    video.src = videoLocation;
+    video.load();
+    video.ondurationchange = () => {
+        const duration = video.duration;
+        document.getElementById("video-endtime").innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
+        document.getElementById("video-sound").max = duration;
+
+        document.getElementById("video-sound").max = 1;
+        document.getElementById("video-play").onpointerdown();
+
+        const video_names = document.getElementsByName("video-names");
+        if (video_names.length > 0) {
+            video_names.forEach(elm => {
+                elm.classList.remove("video-list-active");
+            });
+            video_names[_nowVideoIndex].classList.add("video-list-active");
+        }
+    };
+}
+
+
+/**
+ * 動画選択欄
+ * @param {list} videoObjectList 映像の名前とURLが格納されたリスト
+ * @return {string} ビデオリストのテーブルエレメント
  */
 function SetVideoList(videoObjectList) {
     const table = document.createElement("table");
@@ -376,32 +407,6 @@ function SetVideoList(videoObjectList) {
 }
 
 
-/**
- * 映像をURLに入れ替え
- * @param {String} videoLocation 映像のURL
- */
-function ChangeVideo(videoLocation) {
-    const video = document.getElementById("video");
-    video.src = videoLocation;
-    video.load();
-    video.ondurationchange = () => {
-        const duration = video.duration;
-        document.getElementById("video-endtime").innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
-        document.getElementById("video-sound").max = duration;
-
-        document.getElementById("video-sound").max = 1;
-        document.getElementById("video-play").onpointerdown();
-
-        const video_names = document.getElementsByName("video-names");
-        console.log(video_names);
-        if (video_names.length > 0) {
-            video_names.forEach(elm => {
-                elm.classList.remove("video-list-active");
-            });
-            video_names[_nowVideoIndex].classList.add("video-list-active");
-        }
-    };
-}
 
 /**
  * 秒を時分秒に修正
@@ -434,8 +439,8 @@ function ZeroPadding(timeCode) {
 
 
 /****************************ノート************************************
- * ノートをセット
- * @param {String} return 
+ * 呟き欄のセット
+ * @return {string} ビデオリストのテーブルエレメント
  */
 function SetNote() {
 
@@ -503,6 +508,7 @@ function TakeNote(event) {
         image_td.style.textAlign = "center";
 
         const cvs = document.createElement("canvas");
+        cvs.id = nowTime + "-img";
         const ctx = cvs.getContext("2d");
         cvs.width = Math.abs(lx - sx);
         cvs.height = Math.abs(ly - sy);
@@ -552,9 +558,8 @@ function TakeNote(event) {
     text_td.appendChild(text_card_body);
     /**************************コメント欄表示*/
 
-    const text_card_hooter = document.createElement("div");
-    // text_card_hooter.classList.add("text-right");
-    text_card_hooter.style.textAlign = "right";
+    const text_card_footer = document.createElement("div");
+    text_card_footer.style.textAlign = "right";
 
     /**************************タイムコードを表示*/
     const video_timecode = document.getElementById("video-timecode")
@@ -563,8 +568,8 @@ function TakeNote(event) {
     note_timecode.classList.add("note-timecode");
     note_timecode.id = "note-timecode";
     note_timecode.innerHTML = video_timecode.innerHTML;
-    note_timecode.value = video_timecode.value; // TODO attributeに変更
-    note_timecode.name = _nowVideoIndex; // TODO attributeに変更
+    note_timecode.value = video_timecode.value;
+    note_timecode.name = _nowVideoIndex;
 
     // クリックでメモをとった時点に戻る
     note_timecode.onpointerdown = (event) => {
@@ -573,12 +578,12 @@ function TakeNote(event) {
         video.currentTime = event.path[0].value;
     };
     note_timecode.style.margin = "5px";
-    text_card_hooter.appendChild(note_timecode);
+    text_card_footer.appendChild(note_timecode);
     /**************************タイムコードを表示*/
 
-    /**************************メモの保存（本来はサーバ 現在はTweet）*/
+    /**************************メモのサーバ保存*/
     const save_button = document.createElement("button");
-    save_button.title = "動画をつぶやく";
+    save_button.title = "つぶやく";
     save_button.id = nowTime + "-save-button";
     save_button.classList.add("card-button");
     save_button.classList.add("btn");
@@ -588,6 +593,8 @@ function TakeNote(event) {
         const comment = document.getElementById(id + "-text").value;
         const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
         const videoName = document.getElementById(id + "-tr").getAttribute("video-name");
+
+        // tweet
         const text = "「" + videoName + "」の " + Timecode2HMS(timeCode) + (comment.length === 0 ? (" までを視聴しました") : (" で 「" + comment + "」 とコメントしました"));
         const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
         window.open(url, "_blank", "width=600,height=300");
@@ -599,8 +606,40 @@ function TakeNote(event) {
     save_icom.classList.add("fa-twitter");
 
     save_button.appendChild(save_icom);
-    text_card_hooter.appendChild(save_button);
-    /**************************メモの保存（本来はサーバ 現在はTweet）*/
+    text_card_footer.appendChild(save_button);
+    /**************************メモのサーバ保存*/
+
+
+    /**************************メモのローカル保存*/
+    const local_save_button = document.createElement("button");
+    local_save_button.title = "画像を保存する";
+    local_save_button.id = nowTime + "-local-save-button";
+    local_save_button.classList.add("card-button");
+    local_save_button.classList.add("btn");
+    local_save_button.onpointerdown = (event) => {
+        const id = local_save_button.id.split("-")[0];
+        const comment = document.getElementById(id + "-text").value;
+        const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
+        const videoName = document.getElementById(id + "-tr").getAttribute("video-name");
+        const imageBlob = document.getElementById(id + "-img").toDataURL("image/png");
+
+        // 画像に名前を付けて保存
+        const a = document.createElement("a");
+        a.download = videoName + "-" + Math.round(timeCode) + "-" + len(comment) > 0 ? comment : "nocomment" + ".jpg";
+        console.log(imageBlob);
+        a.href = imageBlob;
+        a.target = "_blank";
+        a.click();
+    };
+
+    const local_save_icom = document.createElement("i");
+    local_save_icom.id = nowTime + "-local-save-icon";
+    local_save_icom.classList.add("fas");
+    local_save_icom.classList.add("fa-save");
+
+    local_save_button.appendChild(local_save_icom);
+    text_card_footer.appendChild(local_save_button);
+    /**************************メモのローカル保存*/
 
 
     /**************************メモの削除*/
@@ -626,13 +665,13 @@ function TakeNote(event) {
 
     delete_button.appendChild(delete_icon);
 
-    text_card_hooter.appendChild(delete_button);
+    text_card_footer.appendChild(delete_button);
     /**************************メモの削除*/
 
 
     /**************************テキスト投稿欄の表示*************************/
 
-    text_td.appendChild(text_card_hooter);
+    text_td.appendChild(text_card_footer);
     note_tr.appendChild(text_td);
 
     this.removeAttribute("x");
@@ -649,6 +688,12 @@ function RemoveAllNote() {
     while (allNotes = document.getElementsByName("note-tr")[0])
         RemoveElement(allNotes);
 }
+
+function ImageFileSave(imageBlob, fileName) {
+    window.navigator.msSaveBlob(imageBlob, fileName);
+}
+
+
 //****************************ノート************************************
 
 
