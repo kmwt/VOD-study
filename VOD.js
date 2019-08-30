@@ -29,8 +29,40 @@ window.onload = function() {
     const note_area = SetNote();
     document.getElementById("note-area").appendChild(note_area);
     SetDropVideo();
+
+    Exprain();
 }
 
+function Exprain() {
+
+    setTimeout(() => {
+        let id = AddMemo("画面をクリックするとtweetできます");
+        setTimeout(() => {
+            RemoveMemo(id);
+        }, 5000);
+    }, 1000);
+
+    const cvs = document.createElement('canvas');
+    const ctx = cvs.getContext('2d');
+
+    const img = new Image();
+    img.src = "./img/test.png";
+
+    img.onload = () => {
+        setTimeout(() => {
+            ctx.drawImage(img, 0, 0, img.width, img.height); //400x300に縮小表示
+            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", cvs);
+            setTimeout(() => { RemoveMemo(id) }, 5000);
+        }, 7000);
+    }
+    setTimeout(() => {
+        let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
+        setTimeout(() => {
+            RemoveMemo(id);
+        }, 5000);
+    }, 14000);
+
+}
 
 
 /****************************ビデオ************************************
@@ -42,6 +74,7 @@ function SetVideo(videoLocation) {
 
     const table = document.createElement("table");
     table.classList.add("video-table");
+    table.style.width = "800px";
     const tbody = document.createElement("tbody");
     tbody.id = "video-tbody";
 
@@ -249,6 +282,7 @@ function SetVideo(videoLocation) {
     attribute_center_td.appendChild(span_endtime);
     /**************************映像の時間を表示*/
 
+
     /**************************次の映像に進む*/
     const next_button = document.createElement("button");
     const next_buttonIcon = document.createElement("i");
@@ -273,6 +307,7 @@ function SetVideo(videoLocation) {
 
     attribute_center_td.appendChild(next_button);
     /**************************次の映像に進む*/
+
 
     /**************************音量の調整*/
     const attribute_right_td = document.createElement("td");
@@ -367,8 +402,12 @@ function ChangeVideo(videoLocation) {
  * @return {string} ビデオリストのテーブルエレメント
  */
 function SetVideoList(videoObjectList) {
+
+    if (document.getElementById("video-list-table"))
+        RemoveElement(document.getElementById("video-list-table"))
+
     const table = document.createElement("table");
-    table.id = "video-list";
+    table.id = "video-list-table";
     table.classList.add("video-lists-table");
     table.style.width = "100%";
     const tbody = document.createElement("tbody");
@@ -382,7 +421,7 @@ function SetVideoList(videoObjectList) {
 
         td.setAttribute("name", "video-names");
 
-        td.classList.add("video-list");
+        td.classList.add("video-list-table");
         td.innerHTML = videoObject.name;
 
         tr.appendChild(td);
@@ -463,7 +502,7 @@ function SetNote() {
         video.setAttribute("y", y);
         // TODO 矩形を描画する
     };
-    video.addEventListener('pointerup', TakeNote);
+    video.onpointerup = TakeNote;
 
     return table;
 }
@@ -471,11 +510,85 @@ function SetNote() {
 /**
  * ノートを書く
  * @param {event} event
+ * @return メモのID
  * TODO 秘密掲示板
- * TODO 画面的に右にコメントリストつけた方がよかった
- * TODO リスト形式にして機械学習に対応
  */
 function TakeNote(event) {
+
+    let image = false;
+
+    const video = document.getElementById("video");
+
+    var today = new Date();
+    const nowTime = today.getTime()
+
+
+    /**************************映像から画像を抽出*************************/
+    const image_td = document.createElement("td");
+
+    const lx = Math.round(event.offsetX * video.videoWidth / video.clientWidth);
+    const ly = Math.round(event.offsetY * video.videoHeight / video.clientHeight);
+    const sx = Number(video.getAttribute("x"));
+    const sy = Number(video.getAttribute("y"));
+
+    this.removeAttribute("x");
+    this.removeAttribute("y");
+
+    // 画像からドラッグ箇所を切り出し
+    const imageLangth = Math.max(Math.abs(lx - sx), Math.abs(ly - sy));
+
+    if (imageLangth > 10) {
+
+        image_td.colSpan = 1;
+        image_td.id = nowTime + "-image";
+        image_td.style.textAlign = "center";
+
+        const cvs = TrimmingImage(video, lx, ly, sx, sy);
+        cvs.id = nowTime + "-img";
+
+        cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
+        image = cvs;
+    }
+    /**************************映像から画像を抽出*************************/
+
+    return AddMemo(false, image);
+}
+
+/**
+ * 
+ * @param {Image} image 
+ * @param {int} lx 
+ * @param {int} ly 
+ * @param {int} sx 
+ * @param {int} sy 
+ */
+function TrimmingImage(image, lx, ly, sx, sy) {
+
+    const cvs = document.createElement("canvas");
+    const ctx = cvs.getContext("2d");
+    cvs.width = Math.abs(lx - sx);
+    cvs.height = Math.abs(ly - sy);
+    ctx.drawImage(
+        image,
+        Math.min(sx, lx),
+        Math.min(sy, ly),
+        cvs.width,
+        cvs.height,
+        0,
+        0,
+        cvs.width,
+        cvs.height
+    );
+    return cvs;
+}
+
+/**
+ * メモ追加
+ * @param {String} commentStr 
+ * @param {Image} imageCanvas 
+ * @return {String} メモのID
+ */
+function AddMemo(commentStr, imageCanvas) {
 
     document.getElementById("video").style.cursor = "pointer";
 
@@ -494,36 +607,14 @@ function TakeNote(event) {
     /**************************映像から画像を抽出*************************/
     const image_td = document.createElement("td");
 
-    const lx = Math.round(event.offsetX * this.videoWidth / this.clientWidth);
-    const ly = Math.round(event.offsetY * this.videoHeight / this.clientHeight);
-    const sx = Number(this.getAttribute("x"));
-    const sy = Number(this.getAttribute("y"));
-
-    const imageLangth = Math.max(Math.abs(lx - sx), Math.abs(ly - sy));
-
-    if (imageLangth > 10) {
+    if (imageCanvas) {
 
         image_td.colSpan = 1;
         image_td.id = nowTime + "-image";
         image_td.style.textAlign = "center";
 
-        const cvs = document.createElement("canvas");
+        const cvs = imageCanvas;
         cvs.id = nowTime + "-img";
-        const ctx = cvs.getContext("2d");
-        cvs.width = Math.abs(lx - sx);
-        cvs.height = Math.abs(ly - sy);
-        ctx.drawImage(
-            this,
-            Math.min(sx, lx),
-            Math.min(sy, ly),
-            cvs.width,
-            cvs.height,
-            0,
-            0,
-            cvs.width,
-            cvs.height
-        );
-
         cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
 
         image_td.appendChild(cvs);
@@ -535,7 +626,7 @@ function TakeNote(event) {
 
     /**************************テキスト投稿欄の表示*************************/
     const text_td = document.createElement("td");
-    text_td.colSpan = imageLangth > 10 ? 2 : 3;
+    text_td.colSpan = imageCanvas ? 2 : 3;
     text_td.style.padding = "0px 10px";
 
     const text_card = document.createElement("div");
@@ -553,6 +644,7 @@ function TakeNote(event) {
     text_area.id = nowTime + "-text";
     text_area.type = "text";
     text_area.placeholder = "コメントを入力できます";
+    if (commentStr) text_area.value = commentStr;
     text_area.classList.add("form-control");
     text_card_body.appendChild(text_area);
     text_td.appendChild(text_card_body);
@@ -566,7 +658,7 @@ function TakeNote(event) {
     const note_timecode = document.createElement("span");
     note_timecode.title = "この動画のタイムラインに戻る";
     note_timecode.classList.add("note-timecode");
-    note_timecode.id = "note-timecode";
+    note_timecode.id = nowTime + "note-timecode";
     note_timecode.innerHTML = video_timecode.innerHTML;
     note_timecode.value = video_timecode.value;
     note_timecode.name = _nowVideoIndex;
@@ -588,7 +680,7 @@ function TakeNote(event) {
     save_button.classList.add("card-button");
     save_button.classList.add("btn");
     save_button.classList.add("btn-primary");
-    save_button.onpointerdown = (event) => {
+    save_button.onpointerdown = () => {
         const id = save_button.id.split("-")[0];
         const comment = document.getElementById(id + "-text").value;
         const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
@@ -616,7 +708,11 @@ function TakeNote(event) {
     local_save_button.id = nowTime + "-local-save-button";
     local_save_button.classList.add("card-button");
     local_save_button.classList.add("btn");
-    local_save_button.onpointerdown = (event) => {
+    // 画像が無い場合はボタンを表示しない
+    if (!imageCanvas) {
+        local_save_button.disabled = true;
+        local_save_button.style.opacity = 0;
+    } else local_save_button.onpointerdown = () => {
         const id = local_save_button.id.split("-")[0];
         const comment = document.getElementById(id + "-text").value;
         const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
@@ -625,8 +721,7 @@ function TakeNote(event) {
 
         // 画像に名前を付けて保存
         const a = document.createElement("a");
-        a.download = videoName + "-" + Math.round(timeCode) + "-" + len(comment) > 0 ? comment : "nocomment" + ".jpg";
-        console.log(imageBlob);
+        a.download = videoName + "-" + Math.round(timeCode) + "-" + (comment.length > 0 ? comment : "nocomment") + ".png";
         a.href = imageBlob;
         a.target = "_blank";
         a.click();
@@ -651,11 +746,7 @@ function TakeNote(event) {
     delete_button.classList.add("btn-danger");
     delete_button.onpointerdown = (event) => {
         const id = delete_button.id.split("-")[0];
-        const note_tr = document.getElementById(id + "-tr");
-        note_tr.classList.add("fade-out");
-        note_tr.addEventListener("animationend", () => {
-            RemoveElement(note_tr);
-        });
+        RemoveMemo(id);
     };
 
     const delete_icon = document.createElement("i");
@@ -674,25 +765,27 @@ function TakeNote(event) {
     text_td.appendChild(text_card_footer);
     note_tr.appendChild(text_td);
 
-    this.removeAttribute("x");
-    this.removeAttribute("y");
-
     document.getElementById("note-tbody").appendChild(note_tr);
+
+    return nowTime;
+}
+
+function RemoveMemo(id) {
+    const memo = document.getElementById(id + "-tr");
+    memo.classList.add("fade-out");
+    memo.addEventListener("animationend", () => {
+        RemoveElement(memo);
+    });
 }
 
 /**
  * 全ノート削除
  */
-function RemoveAllNote() {
-    let allNotes;
-    while (allNotes = document.getElementsByName("note-tr")[0])
-        RemoveElement(allNotes);
+function ClearNote() {
+    let memo;
+    while (memo = document.getElementsByName("note-tr")[0])
+        RemoveElement(memo);
 }
-
-function ImageFileSave(imageBlob, fileName) {
-    window.navigator.msSaveBlob(imageBlob, fileName);
-}
-
 
 //****************************ノート************************************
 
@@ -746,8 +839,13 @@ function VideoDrop(event) {
     _nowVideoIndex = 0;
     ChangeVideo(_videoObjectList[_nowVideoIndex].url);
 
+    if (document.getElementById("video-list-table")) {
+        const video_list_area = SetVideoList(_videoObjectList);
+        document.getElementById("video-area").appendChild(video_list_area);
+    }
+
     // ノートを全て削除
-    RemoveAllNote();
+    ClearNote();
 }
 //****************************ローカルファイルの読み込み************************************
 
