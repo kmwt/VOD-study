@@ -1,66 +1,18 @@
 'use strict';
 
-// document.oncontextmenu = () => { return false; };
+//実用
+//document.oncontextmenu = () => { return false; };
+
+
 
 // videoの表示名とURLのリスト
 var _videoObjectList = [
     { name: "サンプル：川-山-ブリッジ-自然-水", url: "video-src/River-14205.mp4" },
     { name: "サンプル：ようこそ-ホログラム-ビジネス-24829", url: "video-src/Welcome-24829.mp4" }
 ];
-// TODO 意味なし
-
 
 // 現在表示されているビデオのインデックス
 var _nowVideoIndex = 0;
-
-
-/**
- * 初期化
- */
-window.onload = function() {
-    const video_area = CreateVideoDisplayer(_videoObjectList[0].url);
-    document.getElementById("video-area").appendChild(video_area);
-
-    const video_list_area = SetVideoList(_videoObjectList);
-    document.getElementById("video-area").appendChild(video_list_area);
-
-    const note_area = SetNote();
-    document.getElementById("note-area").appendChild(note_area);
-    SetDropVideo();
-
-    // Exprain();
-}
-
-// function Exprain() {
-
-//     setTimeout(() => {
-//         let id = AddMemo("画面をクリックするとtweetできます");
-//         setTimeout(() => {
-//             RemoveMemo(id);
-//         }, 5000);
-//     }, 1000);
-
-//     const cvs = document.createElement('canvas');
-//     const ctx = cvs.getContext('2d');
-
-//     const img = new Image();
-//     img.src = "./img/test.png";
-
-//     img.onload = () => {
-//         setTimeout(() => {
-//             ctx.drawImage(img, 0, 0, img.width, img.height); //400x300に縮小表示
-//             let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", cvs);
-//             setTimeout(() => { RemoveMemo(id) }, 5000);
-//         }, 7000);
-//     }
-//     setTimeout(() => {
-//         let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
-//         setTimeout(() => {
-//             RemoveMemo(id);
-//         }, 5000);
-//     }, 14000);
-
-// }
 
 
 /****************************ビデオ************************************
@@ -327,6 +279,7 @@ function CreateVolumeBar() {
 
 /**
  * 再生速度調節バーの生成
+ * @return {div}
  */
 function CreateSpeedBar() {
     const area = document.createElement("div");
@@ -367,6 +320,7 @@ function CreateSpeedBar() {
 }
 
 /**
+ * 前のビデオに戻るボタンの生成
  * @return {button}
  */
 function CreateBackButton() {
@@ -393,7 +347,7 @@ function CreateBackButton() {
 }
 
 /**
- * 次にセットされているビデオの生成
+ * 次のビデオを見るボタンの生成
  * @return {button}
  */
 function CreateNextButton() {
@@ -425,7 +379,7 @@ function CreateNextButton() {
  * @param {list} videoObjectList 映像の名前とURLが格納されたリスト
  * @return {table} ビデオリストの表要素
  */
-function SetVideoList(videoObjectList) {
+function CreateVideoListDisplayer(videoObjectList) {
 
     if (document.getElementById("video-list-table"))
         RemoveElement(document.getElementById("video-list-table"))
@@ -453,9 +407,9 @@ function SetVideoList(videoObjectList) {
         tr.style.cursor = "pointer";
         tr.onpointerdown = () => {
             const video_names = document.getElementsByName("video-names");
-            video_names.forEach(videoName_list => {
-                videoName_list.classList.remove("video-list-active");
-            });
+            for (let i = 0; i < video_names.length; i++) {
+                video_names[i].classList.remove("video-list-active");
+            }
             td.classList.add("video-list-active");
             if (_nowVideoIndex === i)
                 return;
@@ -490,9 +444,12 @@ function ChangeVideo(videoSrc) {
 
         const video_names = document.getElementsByName("video-names");
         if (video_names.length > 0) {
-            video_names.forEach(elm => {
-                elm.classList.remove("video-list-active");
-            });
+            // video_names.forEach(elm => {
+            //     elm.classList.remove("video-list-active");
+            // }); Edge対応
+            for (let i = 0; i < video_names.length; i++) {
+                video_names.classList.remove("video-list-active");
+            }
             video_names[_nowVideoIndex].classList.add("video-list-active");
         }
     };
@@ -502,7 +459,7 @@ function ChangeVideo(videoSrc) {
 
 /**
  * 秒を時分秒に修正
- * @param {float} t 映像のタイムコード
+ * @param {String} 時分秒の文字列 
  */
 function Timecode2HMS(timeCode) {
     let hms = "";
@@ -520,8 +477,8 @@ function Timecode2HMS(timeCode) {
 }
 
 /**
- * タイムコードの0埋め
- * @param {int} timeCode 
+ * 映像時間の0埋め
+ * @param {String} timeCode 
  */
 function ZeroPadding(timeCode) {
     if (timeCode < 10) return "0" + timeCode;
@@ -534,7 +491,7 @@ function ZeroPadding(timeCode) {
  * 呟き欄のセット
  * @return {string} ビデオリストのテーブルエレメント
  */
-function SetNote() {
+function CreateNoteDisplayer() {
 
     const table = document.createElement("table");
     table.classList.add("note-table");
@@ -759,6 +716,7 @@ function AddMemo(commentStr, imageCanvas) {
  * メモを保存するボタンの生成（サーバ用）
  * @param {String} memoID 
  * @return {button}
+ * 発表用
  * TODO: onpointerdownを変更
  */
 function CreateMemoSaveButton_server(memoID) {
@@ -793,6 +751,7 @@ function CreateMemoSaveButton_server(memoID) {
  * メモを保存するボタンの生成（ローカル用）
  * @param {String} memoID 
  * @return {button}
+ * 発表用
  * TODO: 削除
  */
 function CreateMemoSaveButton_local(memoID) {
@@ -897,7 +856,8 @@ function handleDragOver(event) {
 /**
  * ビデオファイルリストのドロップ
  * @param {イベント} event 
- * TODO 削除
+ * 発表用
+ * TODO: 削除
  */
 function VideoDrop(event) {
 
@@ -927,7 +887,7 @@ function VideoDrop(event) {
     ChangeVideo(_videoObjectList[_nowVideoIndex].url);
 
     if (document.getElementById("video-list-table")) {
-        const video_list_area = SetVideoList(_videoObjectList);
+        const video_list_area = CreateVideoListDisplayer(_videoObjectList);
         document.getElementById("video-area").appendChild(video_list_area);
     }
 
@@ -952,4 +912,140 @@ function RemoveElement(element) {
  * キャメル：JavaScriptの変数
  * スネーク：HTML要素
  * 先頭アンダー：グローバル
+ */
+
+
+
+//****************************表示と説明************************************
+/**
+ * 発表用
+ * TODO: 予想外に動いた部分を学習
+ */
+window.onload = function() {
+
+    const area = document.getElementById("area");
+
+    const video_player = CreateVideoDisplayer(_videoObjectList[0].url);
+    const video_area = document.createElement("div");
+    video_area.id = "video-area";
+    video_area.classList.add("col");
+    video_area.appendChild(video_player);
+
+    area.appendChild(video_area);
+
+    const video_list = CreateVideoListDisplayer(_videoObjectList);
+    const list_area = document.createElement("div");
+    list_area.id = "list-area";
+    list_area.classList.add("col");
+    list_area.appendChild(video_list);
+
+    const video_note = CreateNoteDisplayer();
+    const note_area = document.createElement("div");
+    note_area.id = "note-area";
+    note_area.classList.add("col");
+    note_area.appendChild(video_note);
+
+    SetDropVideo();
+
+    //
+    if (document.body.clientWidth > 1000) {
+        area.appendChild(note_area);
+        area.appendChild(list_area);
+    } else {
+        area.appendChild(list_area);
+        area.appendChild(note_area);
+    }
+
+    //ヤバそう
+    window.onresize = () => {
+        if (document.body.clientWidth > 1000) {
+            const video = document.getElementById("video-area");
+            const list = document.getElementById("list-area");
+            const note = document.getElementById("note-area");
+            document.getElementById("area").innerHTML = "";
+            document.getElementById("area").appendChild(video);
+            document.getElementById("area").appendChild(note);
+            document.getElementById("area").appendChild(list);
+        } else {
+            const video = document.getElementById("video-area");
+            const list = document.getElementById("list-area");
+            const note = document.getElementById("note-area");
+            document.getElementById("area").innerHTML = "";
+            document.getElementById("area").appendChild(video);
+            document.getElementById("area").appendChild(list);
+            document.getElementById("area").appendChild(note);
+        }
+    }
+
+
+    const btn = document.createElement("button");
+    btn.innerHTML = "説明書";
+    btn.style.fontSize = "32px";
+    btn.onclick = () => {
+        Exprain();
+        RemoveElement(btn);
+    };
+    document.body.appendChild(btn);
+    const id = setTimeout(() => { RemoveElement(btn) }, 5000);
+}
+
+/**
+ * 発表用
+ */
+function Exprain() {
+
+    const video = document.getElementById("video");
+
+    if (document.body.clientWidth < 1000) {
+        setTimeout(() => {
+            let id = AddMemo("画面をクリックするとtweetできます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 5000);
+        }, 1000);
+
+        const cvs = document.createElement('canvas');
+        const ctx = cvs.getContext('2d');
+
+        setTimeout(() => {
+            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth / 4, video.videoHeight / 4, video.videoWidth * 3 / 4, video.videoHeight * 3 / 4));
+            setTimeout(() => { RemoveMemo(id) }, 5000);
+        }, 7000);
+
+        setTimeout(() => {
+            let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 5000);
+        }, 14000);
+    } else {
+        setTimeout(() => {
+            let id = AddMemo("画面をクリックするとtweetできます");
+            // setTimeout(() => {
+            //     RemoveMemo(id);
+            // }, 5000);
+        }, 200);
+
+        const cvs = document.createElement('canvas');
+        const ctx = cvs.getContext('2d');
+
+        setTimeout(() => {
+            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth / 4, video.videoHeight / 4, video.videoWidth * 3 / 4, video.videoHeight * 3 / 4));
+            // setTimeout(() => { RemoveMemo(id) }, 5000);
+        }, 400);
+
+        setTimeout(() => {
+            let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
+            // setTimeout(() => {
+            //     RemoveMemo(id);
+            // }, 5000);
+        }, 600);
+    }
+
+}
+
+/**
+ * 0831：メモ
+ * メイン関数より動くWebページ要素のある下二つの方が重要だったような
+ * 動くWebページ要素ここしかないし
  */

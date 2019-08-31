@@ -55,11 +55,6 @@ button {
     transition: .4s;
 }
 
-.video-lists-table {
-    margin: 10px;
-    display: none;
-}
-
 .video-list {
     margin: 5px;
     padding: 10px;
@@ -156,9 +151,9 @@ button {
         width: 32px;
         height: 32px;
     }
-    .video-lists-table {
+    /* .video-lists-table {
         display: none;
-    }
+    } */
 }
 
 @media screen and (min-width:1600px) {
