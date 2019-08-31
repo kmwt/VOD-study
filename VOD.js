@@ -28,39 +28,39 @@ window.onload = function() {
     document.getElementById("note-area").appendChild(note_area);
     SetDropVideo();
 
-    Exprain();
+    // Exprain();
 }
 
-function Exprain() {
+// function Exprain() {
 
-    setTimeout(() => {
-        let id = AddMemo("画面をクリックするとtweetできます");
-        setTimeout(() => {
-            RemoveMemo(id);
-        }, 5000);
-    }, 1000);
+//     setTimeout(() => {
+//         let id = AddMemo("画面をクリックするとtweetできます");
+//         setTimeout(() => {
+//             RemoveMemo(id);
+//         }, 5000);
+//     }, 1000);
 
-    const cvs = document.createElement('canvas');
-    const ctx = cvs.getContext('2d');
+//     const cvs = document.createElement('canvas');
+//     const ctx = cvs.getContext('2d');
 
-    const img = new Image();
-    img.src = "./img/test.png";
+//     const img = new Image();
+//     img.src = "./img/test.png";
 
-    img.onload = () => {
-        setTimeout(() => {
-            ctx.drawImage(img, 0, 0, img.width, img.height); //400x300に縮小表示
-            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", cvs);
-            setTimeout(() => { RemoveMemo(id) }, 5000);
-        }, 7000);
-    }
-    setTimeout(() => {
-        let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
-        setTimeout(() => {
-            RemoveMemo(id);
-        }, 5000);
-    }, 14000);
+//     img.onload = () => {
+//         setTimeout(() => {
+//             ctx.drawImage(img, 0, 0, img.width, img.height); //400x300に縮小表示
+//             let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", cvs);
+//             setTimeout(() => { RemoveMemo(id) }, 5000);
+//         }, 7000);
+//     }
+//     setTimeout(() => {
+//         let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
+//         setTimeout(() => {
+//             RemoveMemo(id);
+//         }, 5000);
+//     }, 14000);
 
-}
+// }
 
 
 /****************************ビデオ************************************
@@ -441,19 +441,20 @@ function SetVideoList(videoObjectList) {
         const url = videoObject.url;
         const tr = document.createElement("tr");
         const td = document.createElement("td");
+
+        td.classList.add("video-list");
         if (i === 0) td.classList.add("video-list-active");
 
         td.setAttribute("name", "video-names");
 
-        td.classList.add("video-list-table");
         td.innerHTML = videoObject.name;
 
         tr.appendChild(td);
         tr.style.cursor = "pointer";
         tr.onpointerdown = () => {
             const video_names = document.getElementsByName("video-names");
-            video_names.forEach(elm => {
-                elm.classList.remove("video-list-active");
+            video_names.forEach(videoName_list => {
+                videoName_list.classList.remove("video-list-active");
             });
             td.classList.add("video-list-active");
             if (_nowVideoIndex === i)
