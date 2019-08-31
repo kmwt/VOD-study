@@ -13,6 +13,7 @@ var _videoObjectList = [
 
 // 現在表示されているビデオのインデックス
 var _nowVideoIndex = 0;
+// TODO: かなりやりづらいので変更
 
 
 /****************************ビデオ************************************
@@ -130,7 +131,7 @@ function CreateSeekBar(video) {
     seekbar.classList.add("input-range");
 
     video.addEventListener("loadedmetadata", () => {
-        seekbar.max = video.duration;
+        seekbar.max = video.duration; // CreateTimeDisplayで循環しそう
     });
 
     seekbar.oninput = () => {
@@ -216,7 +217,7 @@ function CreateTimeDisplay(video) {
         const videoTimeHMS = Timecode2HMS(Math.floor(currentTime)).slice(3);
         const currentTime_displayer = document.getElementById("currentTime-displayer");
 
-        document.getElementById("video-seekbar").value = currentTime;
+        document.getElementById("video-seekbar").value = currentTime; // CreateSeekbarで循環しそう
         currentTime_displayer.innerHTML = videoTimeHMS;
         currentTime_displayer.value = currentTime;
         if (document.hasFocus())
@@ -411,8 +412,6 @@ function CreateVideoListDisplayer(videoObjectList) {
                 video_names[i].classList.remove("video-list-active");
             }
             td.classList.add("video-list-active");
-            if (_nowVideoIndex === i)
-                return;
             ChangeVideo(url);
             _nowVideoIndex = i;
         }
@@ -420,6 +419,14 @@ function CreateVideoListDisplayer(videoObjectList) {
     }
 
     table.appendChild(tbody);
+
+    document.getElementById("video").addEventListener("durationchange", () => {
+        const video_names = document.getElementsByClassName("video-list");
+        for (let i = 0; i < video_names.length; i++) {
+            video_names[i].classList.remove("video-list-active");
+        }
+        video_names[_nowVideoIndex].classList.add("video-list-active");
+    });
 
     return table;
 }
@@ -995,6 +1002,7 @@ window.onload = function() {
 function Exprain() {
 
     const video = document.getElementById("video");
+    video.play()
 
     if (document.body.clientWidth < 1000) {
         setTimeout(() => {
@@ -1008,16 +1016,18 @@ function Exprain() {
         const ctx = cvs.getContext('2d');
 
         setTimeout(() => {
-            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth / 4, video.videoHeight / 4, video.videoWidth * 3 / 4, video.videoHeight * 3 / 4));
-            setTimeout(() => { RemoveMemo(id) }, 5000);
-        }, 7000);
-
-        setTimeout(() => {
             let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
             setTimeout(() => {
                 RemoveMemo(id);
             }, 5000);
+        }, 7000);
+
+        setTimeout(() => {
+            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth / 4, video.videoHeight / 4, video.videoWidth * 3 / 4, video.videoHeight * 3 / 4));
+            setTimeout(() => { RemoveMemo(id) }, 5000);
         }, 14000);
+
+
     } else {
         setTimeout(() => {
             let id = AddMemo("画面をクリックするとtweetできます");
@@ -1030,16 +1040,16 @@ function Exprain() {
         const ctx = cvs.getContext('2d');
 
         setTimeout(() => {
-            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth / 4, video.videoHeight / 4, video.videoWidth * 3 / 4, video.videoHeight * 3 / 4));
-            // setTimeout(() => { RemoveMemo(id) }, 5000);
-        }, 400);
-
-        setTimeout(() => {
             let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
             // setTimeout(() => {
             //     RemoveMemo(id);
             // }, 5000);
         }, 600);
+
+        setTimeout(() => {
+            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth / 4, video.videoHeight / 4, video.videoWidth * 3 / 4, video.videoHeight * 3 / 4));
+            // setTimeout(() => { RemoveMemo(id) }, 5000);
+        }, 400);
     }
 
 }

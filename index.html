@@ -7,16 +7,77 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>VOD</title>
     <link rel="stylesheet" href="VOD.css">
-    <!-- <link rel="stylesheet" href="bootstrap.css">
-    <link rel="stylesheet" href="fontawesome.css"> -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" href="bootstrap.css">
+    <link rel="stylesheet" href="fontawesome.css">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous"> -->
 </head>
 
 <body>
-    <div id="area">
-    </div>
+    <div id="area"></div>
     <script src="VOD.js"></script>
 </body>
 
 </html>
+
+<html lang="jp">
+
+<!-- <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>VideoNote</title>
+    <link rel="stylesheet" href="VOD.css">
+    <link rel="stylesheet" href="bootstrap.css">
+    <link rel="stylesheet" href="fontawesome.css">
+</head>
+
+<body>
+    <div id="area">
+        <div id="video-area" class="col">
+            <table class="video-table" style="width: 800px;">
+                <tbody id="video-tbody">
+                    <tr>
+                        <td colspan="3"><video id="video" src="video-src/River-14205.mp4" title="クリック＆ドラッグで領域を保存" style="width: 100%; cursor: pointer;"></video></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><input id="video-seekbar" type="range" min="0" class="input-range" style="width: 100%;" max="13.44"></td>
+                    </tr>
+                    <tr>
+                        <td><button id="video-play" class="btn btn-dark" style="margin-right: 10px;"><i id="video-play-icon" class="fas fa-play"></i></button>
+                            <div style="display: inline-block;"><i class="fa fa-fast-backward" title="再生速度を変更する"></i><input id="speed-controller" type="range" class="input-range" min="0.5" max="1.5" step="0.5" title="再生速度を変更する" style="margin: 0px 10px;"><i class="fa fa-fast-forward" title="再生速度を変更する"></i></div>
+                        </td>
+                        <td><button id="video-next" class="btn btn-dark" title="前の映像に戻る"><i id="video-play-icon" class="fas fa-step-backward"></i></button>
+                            <div style="display: inline-block;">
+                                <div id="currentTime-displayer" style="display: inline-block;">00：00</div><span>/</span><span id="endTime-displayer">00：13</span></div><button id="video-next" class="btn btn-dark" title="次の映像へ進む"><i id="video-play-icon" class="fas fa-step-forward"></i></button></td>
+                        <td>
+                            <div style="display: inline-block;"><i class="fa fa-volume-down" style="cursor: pointer;"></i><input id="sound-controller" type="range" class="input-range" min="0" max="1" step="0.01"><i class="fa fa-volume-up" style="cursor: pointer;"></i></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="note-area" class="col">
+            <table class="note-table">
+                <tbody id="note-tbody"></tbody>
+            </table>
+        </div>
+        <div id="list-area" class="col">
+            <table id="video-list-table" class="video-lists-table" style="width: 100%;">
+                <tbody>
+                    <tr style="cursor: pointer;">
+                        <td class="video-list video-list-active" name="video-names">サンプル：川-山-ブリッジ-自然-水</td>
+                    </tr>
+                    <tr style="cursor: pointer;">
+                        <td class="video-list" name="video-names">サンプル：ようこそ-ホログラム-ビジネス-24829</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="VOD.js"></script>
+
+
+</body>
+
+</html> -->
