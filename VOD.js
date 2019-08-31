@@ -328,7 +328,7 @@ function CreateBackButton() {
     const button = document.createElement("button");
     const icon = document.createElement("i");
 
-    button.id = "video-next";
+    button.id = "video-back";
     button.classList.add("btn");
     button.classList.add("btn-dark");
     button.title = "前の映像に戻る";
@@ -511,6 +511,7 @@ function CreateNoteDisplayer() {
     video.title = "クリック＆ドラッグで領域を保存";
     video.style.cursor = "pointer";
     video.onpointerdown = (event) => {
+        if (!event) return;
         const video = document.getElementById("video");
         const x = Math.round(event.offsetX * video.videoWidth / video.clientWidth);
         const y = Math.round(event.offsetY * video.videoHeight / video.clientHeight);
@@ -542,28 +543,33 @@ function TakeNote(event) {
     /**************************映像から画像を抽出*************************/
     const image_td = document.createElement("td");
 
+    let imageLength = 0;
+
     const lx = Math.round(event.offsetX * video.videoWidth / video.clientWidth);
     const ly = Math.round(event.offsetY * video.videoHeight / video.clientHeight);
-    const sx = Number(video.getAttribute("x"));
-    const sy = Number(video.getAttribute("y"));
 
-    this.removeAttribute("x");
-    this.removeAttribute("y");
+    if (video.getAttribute("x") && video.getAttribute("y")) {
+        const sx = Number(video.getAttribute("x"));
+        const sy = Number(video.getAttribute("y"));
 
-    // 画像からドラッグ箇所を切り出し
-    const imageLangth = Math.max(Math.abs(lx - sx), Math.abs(ly - sy));
+        this.removeAttribute("x");
+        this.removeAttribute("y");
 
-    if (imageLangth > 10) {
+        // 画像からドラッグ箇所を切り出し
+        const imageLangth = Math.max(Math.abs(lx - sx), Math.abs(ly - sy));
 
-        image_td.colSpan = 1;
-        image_td.id = memoID + "-image";
-        image_td.style.textAlign = "center";
+        if (imageLangth > 10) {
 
-        const trimmed_canvas = TrimmingImage(video, lx, ly, sx, sy);
-        trimmed_canvas.id = memoID + "-img";
+            image_td.colSpan = 1;
+            image_td.id = memoID + "-image";
+            image_td.style.textAlign = "center";
 
-        trimmed_canvas.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
-        image = trimmed_canvas;
+            const trimmed_canvas = TrimmingImage(video, lx, ly, sx, sy);
+            trimmed_canvas.id = memoID + "-img";
+
+            trimmed_canvas.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
+            image = trimmed_canvas;
+        }
     }
     /**************************映像から画像を抽出*************************/
 
@@ -631,9 +637,15 @@ function AddMemo(commentStr, imageCanvas) {
         image_td.style.textAlign = "center";
 
         const cvs = imageCanvas;
+        const imageWidth = cvs.width;
+        const imageHeight = cvs.height;
         cvs.id = memoID + "-img";
-        cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
-
+        if (imageWidth > imageHeight)
+            cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
+        else {
+            cvs.style.height = "300px";
+        }
+        console.log(imageWidth, imageHeight);
         image_td.appendChild(cvs);
         note_tr.appendChild(image_td);
     }
@@ -954,10 +966,9 @@ window.onload = function() {
 
     SetDropVideo();
 
-    //
     if (document.body.clientWidth > 1000) {
         area.appendChild(note_area);
-        area.appendChild(list_area);
+        video_area.appendChild(list_area);
     } else {
         area.appendChild(list_area);
         area.appendChild(note_area);
@@ -972,7 +983,7 @@ window.onload = function() {
             document.getElementById("area").innerHTML = "";
             document.getElementById("area").appendChild(video);
             document.getElementById("area").appendChild(note);
-            document.getElementById("area").appendChild(list);
+            video.appendChild(list);
         } else {
             const video = document.getElementById("video-area");
             const list = document.getElementById("list-area");
@@ -998,58 +1009,188 @@ window.onload = function() {
 
 /**
  * 発表用
+ * テスト用
  */
 function Exprain() {
 
     const video = document.getElementById("video");
-    video.play()
 
     if (document.body.clientWidth < 1000) {
+        let time = 0;
+
         setTimeout(() => {
-            let id = AddMemo("画面をクリックするとtweetできます");
+            video.play();
+            let id = AddMemo("再生ボタンを押すと再生できます");
             setTimeout(() => {
                 RemoveMemo(id);
-            }, 5000);
-        }, 1000);
+            }, 4500);
+        }, time);
+        time += 5000;
 
-        const cvs = document.createElement('canvas');
-        const ctx = cvs.getContext('2d');
+        setTimeout(() => {
+            let id = AddMemo("右下のシークバーで音量を調節できます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 4500);
+        }, time);
+        time += 5000;
+
+        setTimeout(() => {
+            let id = AddMemo("|<<と>>|の間にあるバーで再生速度を変更できます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 4500);
+        }, time);
+        time += 5000;
+
+        setTimeout(() => {
+            video.onpointerdown();
+            let id = AddMemo("画面をクリックして出てくる欄のTwitterボタンを押すとtweetできます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 4500);
+        }, time);
+        time += 5000;
+
+        setTimeout(() => {
+            video.onpointerdown();
+            let id = AddMemo("ゴミ箱を押すとメモが消えます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 4500);
+        }, time);
+        time += 5000;
+
+        setTimeout(() => {
+            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth * Math.random(), video.videoHeight * Math.random(), video.videoWidth * Math.random(), video.videoHeight * Math.random()));
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 4500);
+        }, time);
+        time += 5000;
+
+        setTimeout(() => {
+            document.getElementById("video-next").onpointerdown();
+            let id = AddMemo("＞＞ボタン，＜＜ボタンかプレイヤーの下にあるリストをクリックするとビデオを変更できます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 4500);
+        }, time);
+        time += 5000;
+
+        setTimeout(() => {
+            let id = AddMemo("Twitter左の時間を押すと該当箇所まで戻ります");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 4500);
+        }, time);
+        time += 5000;
+
 
         setTimeout(() => {
             let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
             setTimeout(() => {
                 RemoveMemo(id);
-            }, 5000);
-        }, 7000);
+            }, 4500);
+        }, time);
+        time += 5000;
 
         setTimeout(() => {
-            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth / 4, video.videoHeight / 4, video.videoWidth * 3 / 4, video.videoHeight * 3 / 4));
-            setTimeout(() => { RemoveMemo(id) }, 5000);
-        }, 14000);
-
+            let id = AddMemo("説明おわり");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 4500);
+        }, time);
+        time += 5000;
 
     } else {
-        setTimeout(() => {
-            let id = AddMemo("画面をクリックするとtweetできます");
-            // setTimeout(() => {
-            //     RemoveMemo(id);
-            // }, 5000);
-        }, 200);
 
-        const cvs = document.createElement('canvas');
-        const ctx = cvs.getContext('2d');
+        let time = 0;
+
+        setTimeout(() => {
+            video.play();
+            let id = AddMemo("再生ボタンを押すと再生できます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
+
+        setTimeout(() => {
+            let id = AddMemo("右下のシークバーで音量を調節できます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
+
+        setTimeout(() => {
+            let id = AddMemo("|<<と>>|の間にあるバーで再生速度を変更できます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
+
+        setTimeout(() => {
+            video.onpointerdown();
+            let id = AddMemo("画面をクリックして出てくる欄のTwitterボタンを押すとtweetできます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
+
+        setTimeout(() => {
+            video.onpointerdown();
+            let id = AddMemo("ゴミ箱を押すとメモが消えます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
+
+        setTimeout(() => {
+            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth * Math.random(), video.videoHeight * Math.random(), video.videoWidth * Math.random(), video.videoHeight * Math.random()));
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
+
+        setTimeout(() => {
+            document.getElementById("video-next").onpointerdown();
+            let id = AddMemo("＞＞ボタン，＜＜ボタンかプレイヤーの下にあるリストをクリックするとビデオを変更できます");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
+
+        setTimeout(() => {
+            let id = AddMemo("Twitter左の時間を押すと該当箇所まで戻ります");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
+
 
         setTimeout(() => {
             let id = AddMemo("ローカルmp4ファイルを動画上にドロップすると再生できます");
-            // setTimeout(() => {
-            //     RemoveMemo(id);
-            // }, 5000);
-        }, 600);
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 8000);
+        }, time);
+        time += 3000;
 
         setTimeout(() => {
-            let id = AddMemo("動画上でドラッグ＆ドロップするとトリミングできます", TrimmingImage(video, video.videoWidth / 4, video.videoHeight / 4, video.videoWidth * 3 / 4, video.videoHeight * 3 / 4));
-            // setTimeout(() => { RemoveMemo(id) }, 5000);
-        }, 400);
+            let id = AddMemo("説明おわり");
+            setTimeout(() => {
+                RemoveMemo(id);
+            }, 3000);
+        }, time);
+        time += 3000;
     }
 
 }
