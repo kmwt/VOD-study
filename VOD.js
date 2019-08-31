@@ -1,6 +1,5 @@
 'use strict';
 
-// 配信がダウンロード形式の場合はDL防止
 // document.oncontextmenu = () => { return false; };
 
 // videoの表示名とURLのリスト
@@ -8,8 +7,7 @@ var _videoObjectList = [
     { name: "サンプル：川-山-ブリッジ-自然-水", url: "video-src/River-14205.mp4" },
     { name: "サンプル：ようこそ-ホログラム-ビジネス-24829", url: "video-src/Welcome-24829.mp4" }
 ];
-// TODO サーバ側で設定
-// TODO ファイルリストの表示（どこに表示するか）
+// TODO 意味なし
 
 
 // 現在表示されているビデオのインデックス
@@ -20,7 +18,7 @@ var _nowVideoIndex = 0;
  * 初期化
  */
 window.onload = function() {
-    const video_area = SetVideo(_videoObjectList[0].url);
+    const video_area = CreateVideoDisplayer(_videoObjectList[0].url);
     document.getElementById("video-area").appendChild(video_area);
 
     const video_list_area = SetVideoList(_videoObjectList);
@@ -70,7 +68,9 @@ function Exprain() {
  * @param {Object} videoLocation 映像のURL
  * @return {string} ビデオと再生制御を含むテーブルエレメント
  */
-function SetVideo(videoLocation) {
+function CreateVideoDisplayer(videoLocation) {
+
+    const video = CreateVideo(videoLocation);
 
     const table = document.createElement("table");
     table.classList.add("video-table");
@@ -78,19 +78,12 @@ function SetVideo(videoLocation) {
     const tbody = document.createElement("tbody");
     tbody.id = "video-tbody";
 
+
     /**************************ビデオ表示の設定*************************/
     const video_tr = document.createElement("tr");
     const video_td = document.createElement("td");
-    const video = document.createElement("video");
 
     video_td.colSpan = 3;
-    video_td.style.padding = "10px 10px 0px 10px";
-
-    video.id = "video";
-    video.type = "video/mp4";
-    video.style.width = "100%";
-    video.src = videoLocation;
-    video.load();
 
     video_td.appendChild(video);
     video_tr.appendChild(video_td);
@@ -98,13 +91,84 @@ function SetVideo(videoLocation) {
     /**************************ビデオ表示の設定*************************/
 
 
+
     /**************************シークバーの設定*************************/
     const seekbar_tr = document.createElement("tr");
     const seekbar_td = document.createElement("td");
-    const seekbar = document.createElement("input");
-
     seekbar_td.colSpan = 3;
-    seekbar_td.style.padding = "0px 10px";
+
+    const seekbar = CreateSeekBar(video);
+
+    seekbar_td.appendChild(seekbar);
+    seekbar_tr.appendChild(seekbar_td);
+    tbody.appendChild(seekbar_tr);
+    /**************************シークバーの設定*************************/
+
+
+
+    /**************************再生制御の設定*************************/
+    const attribute_tr = document.createElement("tr");
+    const attribute_left_td = document.createElement("td");
+    const attribute_center_td = document.createElement("td");
+    const attribute_right_td = document.createElement("td");
+
+
+    /**************************再生ボタン*/
+    attribute_left_td.appendChild(CreatePlayButton(video));
+
+    /**************************再生速度バー*/
+    attribute_left_td.appendChild(CreateSpeedBar());
+
+
+    /**************************バックボタン*/
+    attribute_center_td.appendChild(CreateBackButton());
+
+    /**************************映像時間*/
+    attribute_center_td.appendChild(CreateTimeDisplay(video));
+
+    /**************************ネクストボタン*/
+    attribute_center_td.appendChild(CreateNextButton());
+
+
+    /**************************音量バー*/
+    video.volume = 0.01;
+    attribute_right_td.appendChild(CreateVolumeBar(video));
+
+
+    attribute_tr.appendChild(attribute_left_td);
+    attribute_tr.appendChild(attribute_center_td);
+    attribute_tr.appendChild(attribute_right_td);
+    tbody.appendChild(attribute_tr);
+    /**************************再生制御の設定*************************/
+
+    table.appendChild(tbody);
+    return table;
+
+}
+
+
+/**
+ * ビデオ要素の生成
+ * @param {String} videoSrc ビデオのbrogかhref
+ * @return {video} ビデオ要素 
+ */
+function CreateVideo(videoSrc) {
+    const video = document.createElement("video");
+    video.id = "video";
+    video.type = "video/mp4";
+    video.style.width = "100%";
+    video.src = videoSrc;
+    video.load();
+    return video;
+}
+
+/**
+ * シークバーの生成
+ * @param {video} video 
+ * @return {input[range]} 
+ */
+function CreateSeekBar(video) {
+    const seekbar = document.createElement("input");
 
     seekbar.id = "video-seekbar";
     seekbar.type = "range";
@@ -113,293 +177,253 @@ function SetVideo(videoLocation) {
     seekbar.value = 0;
     seekbar.classList.add("input-range");
 
+    video.addEventListener("loadedmetadata", () => {
+        seekbar.max = video.duration;
+    });
+
     seekbar.oninput = () => {
-        video.currentTime = seekbar.value;
-        const timeCode = Timecode2HMS(Math.floor(video.currentTime)).slice(3);
-        document.getElementById("video-timecode").innerHTML = timeCode;
-        // なぜかスコープ外で定義した変数をイベントのスコープ内で呼べる
+        const seekbarValue = document.getElementById("video-seekbar").value;
+        document.getElementById("video").currentTime = seekbarValue;
+        document.getElementById("currentTime-displayer").innerHTML = Timecode2HMS(Math.floor(seekbarValue)).slice(3);
     };
+    return seekbar;
+}
 
-    seekbar_td.appendChild(seekbar);
-    seekbar_tr.appendChild(seekbar_td);
-    tbody.appendChild(seekbar_tr);
-    /**************************シークバーの設定*************************/
+/**
+ * 再生ボタン生成
+ * @param {video} video 
+ */
+function CreatePlayButton(video) {
+    const button = document.createElement("button");
+    const icon = document.createElement("i");
 
+    button.id = "video-play";
+    button.classList.add("btn");
+    button.classList.add("btn-dark");
+    button.style.marginRight = "10px";
 
-    /**************************再生制御の設定*************************/
+    icon.id = "video-play-icon";
+    icon.classList.add("fas");
+    icon.classList.add("fa-play");
 
-    /**************************再生停止*/
-    const attribute_tr = document.createElement("tr");
-    const attribute_left_td = document.createElement("td");
-    attribute_left_td.style.textAlign = "left";
-
-    const button_play = document.createElement("button");
-    const icon_play = document.createElement("i");
-    const span_time = document.createElement("button");
-
-    attribute_left_td.style.padding = "10px";
-
-    button_play.id = "video-play";
-    button_play.classList.add("btn");
-    button_play.classList.add("btn-dark");
-    button_play.style.marginRight = "10px";
-
-    icon_play.id = "video-play-icon";
-    icon_play.classList.add("fas");
-    icon_play.classList.add("fa-play");
-
-    button_play.appendChild(icon_play);
-    button_play.onpointerdown = () => {
-        const icon_play = document.getElementById("video-play-icon");
+    button.appendChild(icon);
+    button.onpointerdown = () => {
+        const video = document.getElementById("video");
+        const icon = document.getElementById("video-play-icon");
         if (video.paused) {
             video.play();
-            if (icon_play.classList.contains("fa-play"))
-                icon_play.classList.remove("fa-play");
-            icon_play.classList.add("fa-pause");
+            if (icon.classList.contains("fa-play"))
+                icon.classList.remove("fa-play");
+            icon.classList.add("fa-pause");
         } else {
             video.pause();
-            if (icon_play.classList.contains("fa-pause"))
-                icon_play.classList.remove("fa-pause");
-            icon_play.classList.add("fa-play");
+            if (icon.classList.contains("fa-pause"))
+                icon.classList.remove("fa-pause");
+            icon.classList.add("fa-play");
         }
-
     };
-
-    attribute_left_td.appendChild(button_play);
 
     video.onended = () => {
-        if (icon_play.classList.contains("fa-pause"))
-            icon_play.classList.remove("fa-pause");
-        icon_play.classList.add("fa-play");
-    };
-    // video.onended = PlayIconChange(); は不可能
-
-    /**************************再生停止*/
-
-    /**************************再生速度の変更*/
-    const span_speed = document.createElement("span");
-    const speed = document.createElement("input");
-
-    speed.style.margin = "0px 10px";
-
-    speed.id = "video-speed";
-    speed.type = "range";
-    speed.classList.add("input-range");
-    speed.min = 0.5;
-    speed.max = 1.5;
-    speed.step = 0.5;
-    speed.value = 1;
-    speed.title = "再生速度を変更する";
-
-    speed.onchange = () => {
-        video.playbackRate = speed.value;
+        const button = document.getElementById("video-play");
+        button.onpointerdown();
+        button.onpointerdown();
     };
 
-    const speed_down_icon = document.createElement("i");
-    speed_down_icon.classList.add("fa");
-    speed_down_icon.classList.add("fa-fast-backward");
-    speed_down_icon.title = "再生速度を変更する";
+    return button;
+}
 
-    const speed_up_icon = document.createElement("i");
-    speed_up_icon.classList.add("fa");
-    speed_up_icon.classList.add("fa-fast-forward");
-    speed_up_icon.title = "再生速度を変更する";
+/**
+ * 時間表示部分の生成
+ * @param {video} video 
+ * @return {div}
+ */
+function CreateTimeDisplay(video) {
 
-    span_speed.append(speed_down_icon);
-    span_speed.append(speed);
-    span_speed.append(speed_up_icon);
+    const area = document.createElement("div");
+    area.style.display = "inline-block";
 
-    attribute_left_td.appendChild(span_speed);
-    /**************************再生速度の変更*/
+    const currentTime_displayer = document.createElement("div");
+    currentTime_displayer.style.display = "inline-block";
+    currentTime_displayer.id = "currentTime-displayer";
+    currentTime_displayer.innerHTML = Timecode2HMS(0).slice(3);
 
-    /**************************前の映像に戻る*/
-    const attribute_center_td = document.createElement("td");
-    attribute_center_td.style.textAlign = "center";
-    attribute_center_td.style.padding = "10px";
+    const tmp = document.createElement("span");
+    tmp.innerHTML = "/";
 
-    const back_button = document.createElement("button");
-    const back_buttonIcon = document.createElement("i");
 
-    back_button.id = "video-next";
-    back_button.classList.add("btn");
-    back_button.classList.add("btn-dark");
-    back_button.style.margin = "0px 10px";
-    back_button.title = "前の映像に戻る";
+    const endTime_displayer = document.createElement("span");
+    endTime_displayer.id = "endTime-displayer";
 
-    back_buttonIcon.id = "video-play-icon";
-    back_buttonIcon.classList.add("fas");
-    back_buttonIcon.classList.add("fa-step-backward");
+    video.addEventListener("loadedmetadata", () => {
+        const videoDuration = video.duration;
+        endTime_displayer.innerHTML = Timecode2HMS(Math.floor(videoDuration)).slice(3);
+    });
 
-    back_button.appendChild(back_buttonIcon);
-    back_button.onpointerdown = () => {
+    video.ontimeupdate = () => {
+        const currentTime = video.currentTime;
+        const videoTimeHMS = Timecode2HMS(Math.floor(currentTime)).slice(3);
+        const currentTime_displayer = document.getElementById("currentTime-displayer");
+
+        document.getElementById("video-seekbar").value = currentTime;
+        currentTime_displayer.innerHTML = videoTimeHMS;
+        currentTime_displayer.value = currentTime;
+        if (document.hasFocus())
+            document.title = "VideoNote";
+        else // 非フォーカス時はタイトルを動画情報に変更
+            document.title = _videoObjectList[_nowVideoIndex].name.slice(0, 4) + "[" + videoTimeHMS + "]";
+    };
+
+    area.appendChild(currentTime_displayer);
+    area.appendChild(tmp);
+    area.appendChild(endTime_displayer);
+
+    return area;
+}
+
+/**
+ * ボリュームバーの生成
+ * @return {div}
+ */
+function CreateVolumeBar() {
+    const area = document.createElement("div");
+    area.style.display = "inline-block";
+
+    const soundbar = document.createElement("input");
+
+    soundbar.id = "sound-controller";
+    soundbar.type = "range";
+    soundbar.classList.add("input-range");
+    soundbar.value = 0.01;
+    soundbar.min = 0;
+    soundbar.max = 1;
+    soundbar.step = 0.01;
+
+    soundbar.oninput = () => {
+        document.getElementById("video").volume = document.getElementById("sound-controller").value;
+    };
+
+    const volumedown_icon = document.createElement("i");
+    volumedown_icon.classList.add("fa");
+    volumedown_icon.classList.add("fa-volume-down");
+    volumedown_icon.style.cursor = "pointer";
+    volumedown_icon.onpointerdown = () => {
+        document.getElementById("video").volume = 0;
+    };
+
+    const volumeup_icon = document.createElement("i");
+    volumeup_icon.classList.add("fa");
+    volumeup_icon.classList.add("fa-volume-up");
+    volumeup_icon.style.cursor = "pointer";
+    volumeup_icon.onpointerdown = () => {
+        document.getElementById("video").volume = document.getElementById("sound-controller").value;
+    };
+
+    area.appendChild(volumedown_icon);
+    area.appendChild(soundbar);
+    area.appendChild(volumeup_icon);
+
+    return area;
+}
+
+/**
+ * 再生速度調節バーの生成
+ */
+function CreateSpeedBar() {
+    const area = document.createElement("div");
+    area.style.display = "inline-block";
+
+    const speed_controller = document.createElement("input");
+
+    speed_controller.style.margin = "0px 10px";
+
+    speed_controller.id = "speed-controller";
+    speed_controller.type = "range";
+    speed_controller.classList.add("input-range");
+    speed_controller.min = 0.5;
+    speed_controller.max = 1.5;
+    speed_controller.step = 0.5;
+    speed_controller.value = 1;
+    speed_controller.title = "再生速度を変更する";
+
+    speed_controller.onchange = () => {
+        document.getElementById("video").playbackRate = document.getElementById("speed-controller").value;
+    };
+
+    const speedDown_icon = document.createElement("i");
+    speedDown_icon.classList.add("fa");
+    speedDown_icon.classList.add("fa-fast-backward");
+    speedDown_icon.title = "再生速度を変更する";
+
+    const speedUp_icon = document.createElement("i");
+    speedUp_icon.classList.add("fa");
+    speedUp_icon.classList.add("fa-fast-forward");
+    speedUp_icon.title = "再生速度を変更する";
+
+    area.append(speedDown_icon);
+    area.append(speed_controller);
+    area.append(speedUp_icon);
+
+    return area;
+}
+
+/**
+ * @return {button}
+ */
+function CreateBackButton() {
+    const button = document.createElement("button");
+    const icon = document.createElement("i");
+
+    button.id = "video-next";
+    button.classList.add("btn");
+    button.classList.add("btn-dark");
+    button.title = "前の映像に戻る";
+
+    icon.id = "video-play-icon";
+    icon.classList.add("fas");
+    icon.classList.add("fa-step-backward");
+
+    button.appendChild(icon);
+    button.onpointerdown = () => {
         if (_nowVideoIndex > 0) {
             _nowVideoIndex--;
             ChangeVideo(_videoObjectList[_nowVideoIndex].url);
         }
     };
+    return button;
+}
 
-    attribute_center_td.appendChild(back_button);
-    /**************************前の映像に戻る*/
+/**
+ * 次にセットされているビデオの生成
+ * @return {button}
+ */
+function CreateNextButton() {
+    const button = document.createElement("button");
+    const icon = document.createElement("i");
 
-    /**************************映像の時間を表示*/
-    const span_timecode = document.createElement("span");
+    button.id = "video-next";
+    button.classList.add("btn");
+    button.classList.add("btn-dark");
+    button.title = "次の映像へ進む";
 
-    span_timecode.id = "video-timecode";
-    span_timecode.style.margin = "0px 10px";
-    span_timecode.innerHTML = Timecode2HMS(0).slice(3);
+    icon.id = "video-play-icon";
+    icon.classList.add("fas");
+    icon.classList.add("fa-step-forward");
 
-    attribute_center_td.appendChild(span_timecode);
-
-
-    const slash = document.createElement("span");
-    slash.innerHTML = "/";
-    attribute_center_td.appendChild(slash);
-
-
-    const span_endtime = document.createElement("span");
-    span_endtime.id = "video-endtime";
-    span_endtime.style.margin = "0px 10px";
-    video.onloadedmetadata = () => {
-        const duration = video.duration;
-        span_endtime.innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
-        seekbar.max = duration;
-    };
-
-    video.ontimeupdate = () => {
-        const time = video.currentTime;
-        seekbar.value = time;
-        const timeCode = Timecode2HMS(Math.floor(time)).slice(3);
-        const time_code = document.getElementById("video-timecode");
-        time_code.innerHTML = timeCode;
-        time_code.value = time;
-        if (document.hasFocus())
-            document.title = "NoteVideo";
-        else // 非フォーカス時はタイトルを動画情報に変更
-            document.title = _videoObjectList[_nowVideoIndex].name.slice(0, 4) + "[" + timeCode + "]";
-
-    };
-
-    attribute_center_td.appendChild(span_endtime);
-    /**************************映像の時間を表示*/
-
-
-    /**************************次の映像に進む*/
-    const next_button = document.createElement("button");
-    const next_buttonIcon = document.createElement("i");
-
-    next_button.id = "video-next";
-    next_button.classList.add("btn");
-    next_button.classList.add("btn-dark");
-    next_button.style.margin = "0px 10px";
-
-    next_buttonIcon.id = "video-play-icon";
-    next_buttonIcon.classList.add("fas");
-    next_buttonIcon.classList.add("fa-step-forward");
-
-    next_button.appendChild(next_buttonIcon);
-    next_button.onpointerdown = () => {
+    button.appendChild(icon);
+    button.onpointerdown = () => {
         if (_nowVideoIndex < _videoObjectList.length - 1) {
             _nowVideoIndex++;
             ChangeVideo(_videoObjectList[_nowVideoIndex].url);
         }
     };
-    next_button.title = "次の映像へ進む";
-
-    attribute_center_td.appendChild(next_button);
-    /**************************次の映像に進む*/
-
-
-    /**************************音量の調整*/
-    const attribute_right_td = document.createElement("td");
-    attribute_right_td.style.padding = "10px";
-
-    const span_sound = document.createElement("span");
-    const sound = document.createElement("input");
-
-    span_sound.style.marginRight = "10px";
-
-    sound.id = "video-sound";
-    sound.type = "range";
-    sound.classList.add("input-range");
-    sound.value = 0;
-    sound.min = 0;
-    sound.max = 1;
-    sound.step = 0.01;
-    sound.style.margin = "0px 10px";
-    video.volume = 0.01;
-
-    sound.oninput = () => {
-        video.volume = sound.value;
-    };
-
-    const volume_down_icon = document.createElement("i");
-    volume_down_icon.classList.add("fa");
-    volume_down_icon.classList.add("fa-volume-down");
-    volume_down_icon.style.cursor = "pointer";
-    volume_down_icon.onpointerdown = () => {
-        video.volume = 0;
-    };
-
-    const volume_up_icon = document.createElement("i");
-    volume_up_icon.classList.add("fa");
-    volume_up_icon.classList.add("fa-volume-up");
-    volume_up_icon.style.cursor = "pointer";
-    volume_up_icon.onpointerdown = () => {
-        video.volume = sound.value;
-    };
-
-    span_sound.appendChild(volume_down_icon);
-    span_sound.appendChild(sound);
-    span_sound.appendChild(volume_up_icon);
-    attribute_right_td.appendChild(span_sound);
-    /**************************音量の調整*/
-
-    /**************************再生制御の設定*************************/
-
-
-    attribute_tr.appendChild(attribute_left_td);
-    attribute_tr.appendChild(attribute_center_td);
-    attribute_tr.appendChild(attribute_right_td);
-    tbody.appendChild(attribute_tr);
-
-    table.appendChild(tbody);
-
-    return table;
-
-}
-
-/**
- * 映像をURLに入れ替え
- * @param {String} videoLocation 映像のURL
- */
-function ChangeVideo(videoLocation) {
-    const video = document.getElementById("video");
-    const videoHeight = video.style.height;
-    video.src = videoLocation;
-    video.load();
-    video.ondurationchange = () => {
-        const duration = video.duration;
-        document.getElementById("video-endtime").innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
-        document.getElementById("video-sound").max = duration;
-
-        document.getElementById("video-sound").max = 1;
-        document.getElementById("video-play").onpointerdown();
-
-        const video_names = document.getElementsByName("video-names");
-        if (video_names.length > 0) {
-            video_names.forEach(elm => {
-                elm.classList.remove("video-list-active");
-            });
-            video_names[_nowVideoIndex].classList.add("video-list-active");
-        }
-    };
+    return button;
 }
 
 
 /**
  * 動画選択欄
  * @param {list} videoObjectList 映像の名前とURLが格納されたリスト
- * @return {string} ビデオリストのテーブルエレメント
+ * @return {table} ビデオリストの表要素
  */
 function SetVideoList(videoObjectList) {
 
@@ -414,10 +438,10 @@ function SetVideoList(videoObjectList) {
 
     for (let i = 0; i < videoObjectList.length; i++) {
         const videoObject = videoObjectList[i];
+        const url = videoObject.url;
         const tr = document.createElement("tr");
         const td = document.createElement("td");
         if (i === 0) td.classList.add("video-list-active");
-        const url = videoObject.url;
 
         td.setAttribute("name", "video-names");
 
@@ -445,6 +469,34 @@ function SetVideoList(videoObjectList) {
     return table;
 }
 
+
+/**
+ * 映像をURLに入れ替え
+ * @param {String} videoSrc 映像のURL
+ */
+function ChangeVideo(videoSrc) {
+    const video = document.getElementById("video");
+    video.src = videoSrc;
+    video.load();
+    video.ondurationchange = () => {
+        const duration = video.duration;
+        document.getElementById("endTime-displayer").innerHTML = Timecode2HMS(Math.floor(duration)).slice(3);
+        document.getElementById("sound-controller").max = duration;
+
+        document.getElementById("sound-controller").max = 1;
+        document.getElementById("speed-controller").value = 1;
+        document.getElementById("video-play").onpointerdown();
+
+        const video_names = document.getElementsByName("video-names");
+        if (video_names.length > 0) {
+            video_names.forEach(elm => {
+                elm.classList.remove("video-list-active");
+            });
+            video_names[_nowVideoIndex].classList.add("video-list-active");
+        }
+    };
+}
+// なぜシークバーの最大値が更新される？
 
 
 /**
@@ -510,8 +562,7 @@ function SetNote() {
 /**
  * ノートを書く
  * @param {event} event
- * @return メモのID
- * TODO 秘密掲示板
+ * @return {String} メモのID
  */
 function TakeNote(event) {
 
@@ -520,7 +571,7 @@ function TakeNote(event) {
     const video = document.getElementById("video");
 
     var today = new Date();
-    const nowTime = today.getTime()
+    const memoID = today.getTime()
 
 
     /**************************映像から画像を抽出*************************/
@@ -540,14 +591,14 @@ function TakeNote(event) {
     if (imageLangth > 10) {
 
         image_td.colSpan = 1;
-        image_td.id = nowTime + "-image";
+        image_td.id = memoID + "-image";
         image_td.style.textAlign = "center";
 
-        const cvs = TrimmingImage(video, lx, ly, sx, sy);
-        cvs.id = nowTime + "-img";
+        const trimmed_canvas = TrimmingImage(video, lx, ly, sx, sy);
+        trimmed_canvas.id = memoID + "-img";
 
-        cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
-        image = cvs;
+        trimmed_canvas.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
+        image = trimmed_canvas;
     }
     /**************************映像から画像を抽出*************************/
 
@@ -557,10 +608,11 @@ function TakeNote(event) {
 /**
  * 
  * @param {Image} image 
- * @param {int} lx 
- * @param {int} ly 
- * @param {int} sx 
- * @param {int} sy 
+ * @param {int} lx トリミングの左座標
+ * @param {int} ly トリミングの上座標
+ * @param {int} sx トリミングの右座標
+ * @param {int} sy トリミングの下座標
+ * @return {canvas} 切り取り箇所
  */
 function TrimmingImage(image, lx, ly, sx, sy) {
 
@@ -595,14 +647,14 @@ function AddMemo(commentStr, imageCanvas) {
     const video = document.getElementById("video");
 
     var today = new Date();
-    const nowTime = today.getTime()
+    const memoID = today.getTime()
 
     const note_tr = document.createElement("tr");
-    note_tr.id = nowTime + "-tr";
+    note_tr.id = memoID + "-tr";
     note_tr.classList.add("fade-in");
     note_tr.setAttribute("name", "note-tr");
     note_tr.setAttribute("video-name", _videoObjectList[_nowVideoIndex].name);
-    note_tr.setAttribute("video-timecode", video.currentTime);
+    note_tr.setAttribute("saveTime", video.currentTime);
 
     /**************************映像から画像を抽出*************************/
     const image_td = document.createElement("td");
@@ -610,11 +662,11 @@ function AddMemo(commentStr, imageCanvas) {
     if (imageCanvas) {
 
         image_td.colSpan = 1;
-        image_td.id = nowTime + "-image";
+        image_td.id = memoID + "-image";
         image_td.style.textAlign = "center";
 
         const cvs = imageCanvas;
-        cvs.id = nowTime + "-img";
+        cvs.id = memoID + "-img";
         cvs.style.width = (document.getElementById("video-tbody").clientWidth / 3 - 10) + "px";
 
         image_td.appendChild(cvs);
@@ -627,42 +679,40 @@ function AddMemo(commentStr, imageCanvas) {
     /**************************テキスト投稿欄の表示*************************/
     const text_td = document.createElement("td");
     text_td.colSpan = imageCanvas ? 2 : 3;
-    text_td.style.padding = "0px 10px";
 
     const text_card = document.createElement("div");
 
+    const text_card_header = document.createElement("div");
+    const text_card_footer = document.createElement("div");
+    text_card_footer.style.textAlign = "right";
+
 
     /**************************メモヘッダ*/
-    const text_card_header = document.createElement("div");
     text_card_header.innerHTML = today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate() + " " + today.getHours() + " : " + today.getMinutes() + " : " + today.getSeconds() + "   " + _videoObjectList[_nowVideoIndex].name;
     text_td.appendChild(text_card_header);
-    /**************************メモヘッダ*/
+
 
     /**************************コメント欄表示*/
     const text_card_body = document.createElement("div");
     const text_area = document.createElement("input");
-    text_area.id = nowTime + "-text";
+    text_area.id = memoID + "-text";
     text_area.type = "text";
     text_area.placeholder = "コメントを入力できます";
     if (commentStr) text_area.value = commentStr;
     text_area.classList.add("form-control");
     text_card_body.appendChild(text_area);
     text_td.appendChild(text_card_body);
-    /**************************コメント欄表示*/
 
-    const text_card_footer = document.createElement("div");
-    text_card_footer.style.textAlign = "right";
 
     /**************************タイムコードを表示*/
-    const video_timecode = document.getElementById("video-timecode")
+    const video_timecode = document.getElementById("currentTime-displayer")
     const note_timecode = document.createElement("span");
     note_timecode.title = "この動画のタイムラインに戻る";
     note_timecode.classList.add("note-timecode");
-    note_timecode.id = nowTime + "note-timecode";
+    note_timecode.id = memoID + "note-timecode";
     note_timecode.innerHTML = video_timecode.innerHTML;
     note_timecode.value = video_timecode.value;
     note_timecode.name = _nowVideoIndex;
-
     // クリックでメモをとった時点に戻る
     note_timecode.onpointerdown = (event) => {
         ChangeVideo(_videoObjectList[parseInt(event.path[0].name)].url);
@@ -671,93 +721,27 @@ function AddMemo(commentStr, imageCanvas) {
     };
     note_timecode.style.margin = "5px";
     text_card_footer.appendChild(note_timecode);
-    /**************************タイムコードを表示*/
+
 
     /**************************メモのサーバ保存*/
-    const save_button = document.createElement("button");
-    save_button.title = "つぶやく";
-    save_button.id = nowTime + "-save-button";
-    save_button.classList.add("card-button");
-    save_button.classList.add("btn");
-    save_button.classList.add("btn-primary");
-    save_button.onpointerdown = () => {
-        const id = save_button.id.split("-")[0];
-        const comment = document.getElementById(id + "-text").value;
-        const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
-        const videoName = document.getElementById(id + "-tr").getAttribute("video-name");
-
-        // tweet
-        const text = "「" + videoName + "」の " + Timecode2HMS(timeCode) + (comment.length === 0 ? (" までを視聴しました") : (" で 「" + comment + "」 とコメントしました"));
-        const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
-        window.open(url, "_blank", "width=600,height=300");
-    };
-
-    const save_icom = document.createElement("i");
-    save_icom.id = nowTime + "-save-icon";
-    save_icom.classList.add("fas");
-    save_icom.classList.add("fa-twitter");
-
-    save_button.appendChild(save_icom);
-    text_card_footer.appendChild(save_button);
-    /**************************メモのサーバ保存*/
+    text_card_footer.appendChild(CreateMemoSaveButton_server(memoID));
 
 
     /**************************メモのローカル保存*/
-    const local_save_button = document.createElement("button");
-    local_save_button.title = "画像を保存する";
-    local_save_button.id = nowTime + "-local-save-button";
-    local_save_button.classList.add("card-button");
-    local_save_button.classList.add("btn");
-    // 画像が無い場合はボタンを表示しない
+    let memo_save_button_local;
     if (!imageCanvas) {
-        local_save_button.disabled = true;
-        local_save_button.style.opacity = 0;
-    } else local_save_button.onpointerdown = () => {
-        const id = local_save_button.id.split("-")[0];
-        const comment = document.getElementById(id + "-text").value;
-        const timeCode = document.getElementById(id + "-tr").getAttribute("video-timecode");
-        const videoName = document.getElementById(id + "-tr").getAttribute("video-name");
-        const imageBlob = document.getElementById(id + "-img").toDataURL("image/png");
+        memo_save_button_local = document.createElement("button");
+        memo_save_button_local.disabled = true;
+        memo_save_button_local.style.opacity = 0;
+    } else {
+        memo_save_button_local = CreateMemoSaveButton_local(memoID);
+    }
+    text_card_footer.appendChild(memo_save_button_local);
 
-        // 画像に名前を付けて保存
-        const a = document.createElement("a");
-        a.download = videoName + "-" + Math.round(timeCode) + "-" + (comment.length > 0 ? comment : "nocomment") + ".png";
-        a.href = imageBlob;
-        a.target = "_blank";
-        a.click();
-    };
-
-    const local_save_icom = document.createElement("i");
-    local_save_icom.id = nowTime + "-local-save-icon";
-    local_save_icom.classList.add("fas");
-    local_save_icom.classList.add("fa-save");
-
-    local_save_button.appendChild(local_save_icom);
-    text_card_footer.appendChild(local_save_button);
-    /**************************メモのローカル保存*/
 
 
     /**************************メモの削除*/
-    const delete_button = document.createElement("button");
-    delete_button.id = nowTime + "-delete-button";
-    delete_button.title = "このメモを削除する";
-    delete_button.classList.add("card-button");
-    delete_button.classList.add("btn");
-    delete_button.classList.add("btn-danger");
-    delete_button.onpointerdown = (event) => {
-        const id = delete_button.id.split("-")[0];
-        RemoveMemo(id);
-    };
-
-    const delete_icon = document.createElement("i");
-    delete_icon.id = nowTime + "-delete-icon";
-    delete_icon.classList.add("fas");
-    delete_icon.classList.add("fa-trash-alt");
-
-    delete_button.appendChild(delete_icon);
-
-    text_card_footer.appendChild(delete_button);
-    /**************************メモの削除*/
+    text_card_footer.appendChild(CreateMemoDeleteButton(memoID));
 
 
     /**************************テキスト投稿欄の表示*************************/
@@ -767,9 +751,110 @@ function AddMemo(commentStr, imageCanvas) {
 
     document.getElementById("note-tbody").appendChild(note_tr);
 
-    return nowTime;
+    return memoID;
 }
 
+/**
+ * メモを保存するボタンの生成（サーバ用）
+ * @param {String} memoID 
+ * @return {button}
+ * TODO: onpointerdownを変更
+ */
+function CreateMemoSaveButton_server(memoID) {
+    const button = document.createElement("button");
+    button.title = "つぶやく";
+    button.id = memoID + "-save-button";
+    button.classList.add("card-button");
+    button.classList.add("btn");
+    button.classList.add("btn-primary");
+    button.onpointerdown = () => {
+        const memoID = button.id.split("-")[0];
+        const comment = document.getElementById(memoID + "-text").value;
+        const timeCode = document.getElementById(memoID + "-tr").getAttribute("saveTime");
+        const videoName = document.getElementById(memoID + "-tr").getAttribute("video-name");
+
+        // tweet
+        const text = "「" + videoName + "」の " + Timecode2HMS(timeCode) + (comment.length === 0 ? (" までを視聴しました") : (" で 「" + comment + "」 とコメントしました"));
+        const url = "http://twitter.com/share?url=" + escape(document.location.href) + "&text=" + encodeURIComponent(text);
+        window.open(url, "_blank", "width=600,height=300");
+    };
+
+    const icon = document.createElement("i");
+    icon.id = memoID + "-save-icon";
+    icon.classList.add("fas");
+    icon.classList.add("fa-twitter");
+
+    button.appendChild(icon);
+    return button;
+}
+
+/**
+ * メモを保存するボタンの生成（ローカル用）
+ * @param {String} memoID 
+ * @return {button}
+ * TODO: 削除
+ */
+function CreateMemoSaveButton_local(memoID) {
+    const button = document.createElement("button");
+    button.title = "画像を保存する";
+    button.id = memoID + "-local-save-button";
+    button.classList.add("card-button");
+    button.classList.add("btn");
+
+    button.onpointerdown = () => {
+        const memoID = button.id.split("-")[0];
+        const comment = document.getElementById(memoID + "-text").value;
+        const timeCode = document.getElementById(memoID + "-tr").getAttribute("saveTime");
+        const videoName = document.getElementById(memoID + "-tr").getAttribute("video-name");
+        const imageBlob = document.getElementById(memoID + "-img").toDataURL("image/png");
+
+        // 画像に名前を付けて保存
+        const a = document.createElement("a");
+        a.download = videoName + "-" + Math.round(timeCode) + "-" + (comment.length > 0 ? comment : "nocomment") + ".png";
+        a.href = imageBlob;
+        a.target = "_blank";
+        a.click();
+    };
+
+    const icon = document.createElement("i");
+    icon.id = memoID + "-local-save-icon";
+    icon.classList.add("fas");
+    icon.classList.add("fa-save");
+
+    button.appendChild(icon);
+    return button;
+}
+
+/**
+ * メモ削除ボタンの生成
+ * @param {String} memoID 
+ * @return {button}
+ */
+function CreateMemoDeleteButton(memoID) {
+    const button = document.createElement("button");
+    button.id = memoID + "-delete-button";
+    button.title = "このメモを削除する";
+    button.classList.add("card-button");
+    button.classList.add("btn");
+    button.classList.add("btn-danger");
+    button.onpointerdown = (event) => {
+        const memoID = button.id.split("-")[0];
+        RemoveMemo(memoID);
+    };
+
+    const icon = document.createElement("i");
+    icon.id = memoID + "-delete-icon";
+    icon.classList.add("fas");
+    icon.classList.add("fa-trash-alt");
+
+    button.appendChild(icon);
+    return button;
+}
+
+/**
+ * メモの削除
+ * @param {String} id 
+ */
 function RemoveMemo(id) {
     const memo = document.getElementById(id + "-tr");
     memo.classList.add("fade-out");
@@ -811,6 +896,7 @@ function handleDragOver(event) {
 /**
  * ビデオファイルリストのドロップ
  * @param {イベント} event 
+ * TODO 削除
  */
 function VideoDrop(event) {
 

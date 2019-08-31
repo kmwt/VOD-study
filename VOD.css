@@ -5,6 +5,8 @@ body {
 
 button {
     vertical-align: middle;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .video-table {
