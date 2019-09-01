@@ -701,7 +701,7 @@ function AddMemo(commentStr, imageCanvas) {
 
 
     /**************************メモのサーバ保存*/
-    text_card_footer.appendChild(CreateMemoSaveButton_server(memoID));
+    text_card_footer.appendChild(CreateMemoSaveButton_global(memoID));
 
 
     /**************************メモのローカル保存*/
@@ -738,7 +738,7 @@ function AddMemo(commentStr, imageCanvas) {
  * 発表用
  * TODO: onpointerdownを変更
  */
-function CreateMemoSaveButton_server(memoID) {
+function CreateMemoSaveButton_global(memoID) {
     const button = document.createElement("button");
     button.title = "つぶやく";
     button.id = memoID + "-save-button";
