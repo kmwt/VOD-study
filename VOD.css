@@ -133,7 +133,7 @@ button {
 
 @media screen and (max-width:800px) {
     body {
-        width: 800px;
+        width: 100%;
         margin-right: auto;
         margin-left: auto;
     }
@@ -156,9 +156,9 @@ button {
     } */
 }
 
-@media screen and (min-width:1600px) {
+@media screen and (min-width:1400px) {
     .col {
-        width: 800px;
+        /* width: 800px; */
         vertical-align: top;
         display: inline-block;
     }

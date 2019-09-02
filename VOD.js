@@ -946,6 +946,7 @@ window.onload = function() {
 
     const video_player = CreateVideoDisplayer(_videoObjectList[0].url);
     const video_area = document.createElement("div");
+    video_area.style.width = "800px";
     video_area.id = "video-area";
     video_area.classList.add("col");
     video_area.appendChild(video_player);
@@ -954,6 +955,7 @@ window.onload = function() {
 
     const video_list = CreateVideoListDisplayer(_videoObjectList);
     const list_area = document.createElement("div");
+    list_area.style.width = "800px";
     list_area.id = "list-area";
     list_area.classList.add("col");
     list_area.appendChild(video_list);
@@ -1195,8 +1197,4 @@ function Exprain() {
 
 }
 
-/**
- * 0831：メモ
- * メイン関数より動くWebページ要素のある下二つの方が重要だったような
- * 動くWebページ要素ここしかないし
- */
+// 突貫で作ったことを反省
